@@ -21,6 +21,7 @@ class Test {
         println(
             iCareJdbcTemplate.query(
                 "SELECT * FROM C_User",
+
                 { rs, rowNum ->
                     println("rowNum: $rowNum")
                     println("rs: ${rs.getString("first_name")}")

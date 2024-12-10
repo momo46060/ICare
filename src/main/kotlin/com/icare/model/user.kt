@@ -1,4 +1,9 @@
 package com.icare.model
 
-class user {
-}
+data class User(
+    val userId: String,
+    val fName: String,
+    val lName: String,
+    val nationalId: String,
+    val passWord: String
+)
