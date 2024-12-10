@@ -16,15 +16,16 @@ import javax.sql.DataSource
 
 @Configuration
 class AppModule {
+
     @Autowired
     private lateinit var env: Environment
+
     @Bean
     fun fireBaseInitializing(): FirebaseApp {
         val serviceAccount = FileInputStream(ResourceUtils.getFile("servicekey.json").path)
         val options = FirebaseOptions.Builder()
             .setCredentials(GoogleCredentials.fromStream(serviceAccount))
             .build()
-
         return FirebaseApp.initializeApp(options)
     }
 
