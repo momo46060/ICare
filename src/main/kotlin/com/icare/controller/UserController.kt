@@ -1,6 +1,6 @@
 package com.icare.controller
 
-import com.icare.model.User
+import com.icare.model.Users
 import com.icare.service.UserSevice
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PostMapping
@@ -17,7 +17,7 @@ class UserController {
     lateinit var userService:UserSevice
 
     @PostMapping("/register")
-    fun register(@RequestBody user: User): Boolean{
+    fun register(@RequestBody user: Users): Boolean{
         return userService.register(user)
     }
 

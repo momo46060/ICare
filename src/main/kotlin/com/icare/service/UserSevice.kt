@@ -1,6 +1,7 @@
 package com.icare.service
 
-import com.icare.model.User
+import com.icare.model.Users
+import com.icare.repository.Repository
 import com.icare.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -12,6 +13,16 @@ class UserSevice {
     @Autowired
     lateinit var repository: UserRepository
 
-    fun register(user: User): Boolean = repository.register(user)
+    @Autowired
+    lateinit var jpaRepository: Repository
+
+    fun register(user: Users): Boolean {
+            jpaRepository.save(user)
+        println(
+            jpaRepository.save(user)
+        )
+
+        return true
+    }
 
 }
