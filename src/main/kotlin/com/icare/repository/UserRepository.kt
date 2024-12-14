@@ -1,10 +1,10 @@
 package com.icare.repository
 
-import com.icare.model.User
+import com.icare.model.Users
 
 interface UserRepository {
 
-    fun register(user: User): Boolean
+    fun register(user: Users): Boolean
 
 
 

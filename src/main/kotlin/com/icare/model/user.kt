@@ -1,9 +1,15 @@
 package com.icare.model
 
-data class User(
-    val userId: String,
-    val fName: String,
-    val lName: String,
-    val nationalId: String,
-    val passWord: String
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+
+
+@Entity
+class Users (
+    @Id
+    val userId: String = "",
+    val fName: String = "",
+    val lName: String = "",
+    val nationalId: String = "",
+    val passWord: String = "",
 )
