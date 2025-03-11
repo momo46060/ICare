@@ -1,17 +1,11 @@
 package com.icare.repository
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
-import com.icare.model.Patient
 import com.icare.model.PatientModel
 import com.icare.model.Users
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 
 
 @Repository
@@ -45,7 +39,6 @@ class UserRepositoryImpl : UserRepository {
                 return true
             }else{
                 return false
-
             }
         } catch (e: Exception) {
             println(e.stackTrace)
@@ -80,7 +73,6 @@ class UserRepositoryImpl : UserRepository {
 
     private fun getUid(token: String): String {
         val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
         val decodedToken = auth.verifyIdToken(token);
         return decodedToken.uid;
     }
