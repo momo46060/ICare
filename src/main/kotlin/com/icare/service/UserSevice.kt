@@ -1,9 +1,13 @@
 package com.icare.service
 
-import com.icare.model.Users
-import com.icare.repository.Repository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.icare.model.Patient
+import com.icare.model.PatientModel
 import com.icare.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
 
@@ -13,16 +17,26 @@ class UserSevice {
     @Autowired
     lateinit var repository: UserRepository
 
-    @Autowired
-    lateinit var jpaRepository: Repository
+    fun registerUser(patient: PatientModel): Boolean {
 
-    fun register(user: Users): Boolean {
-            jpaRepository.save(user)
-        println(
-            jpaRepository.save(user)
-        )
-
-        return true
+        return if (verifyToken(patient.token)==ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token")){
+            false
+        }else{
+            repository.registerPatient(patient)
+        }
     }
+
+   private fun verifyToken(token: String): ResponseEntity<String> {
+        val auth: FirebaseAuth = FirebaseAuth.getInstance()
+        try {
+            val decodedToken = auth.verifyIdToken(token);
+            val uid = decodedToken.uid;
+            return ResponseEntity.ok(uid);
+        } catch (e: FirebaseAuthException) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
+
+
 
 }

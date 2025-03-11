@@ -8,4 +8,5 @@ class ICareApplication
 
 fun main(args: Array<String>) {
     runApplication<ICareApplication>(*args)
+
 }

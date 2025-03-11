@@ -1,6 +1,6 @@
 package com.icare.controller
 
-import com.icare.model.Users
+import com.icare.model.PatientModel
 import com.icare.service.UserSevice
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PostMapping
@@ -10,15 +10,18 @@ import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api")
 class UserController {
 
     @Autowired
-    lateinit var userService:UserSevice
+    lateinit var userService: UserSevice
 
-    @PostMapping("/register")
-    fun register(@RequestBody user: Users): Boolean{
-        return userService.register(user)
+
+    @PostMapping("/patient_register")
+    fun register(@RequestBody patient: PatientModel): Boolean {
+        return userService.registerUser(patient)
     }
 
+
 }
+
