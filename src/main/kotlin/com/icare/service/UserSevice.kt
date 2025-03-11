@@ -19,21 +19,22 @@ class UserSevice {
 
     fun registerUser(patient: PatientModel): Boolean {
 
-        return if (verifyToken(patient.token)==ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token")){
-            false
-        }else{
-            repository.registerPatient(patient)
-        }
+//        return if (verifyToken(patient.token)){
+//            println("Invalid token")
+//            false
+//        }else{
+           return repository.registerPatient(patient)
+//        }
     }
 
-   private fun verifyToken(token: String): ResponseEntity<String> {
+   private fun verifyToken(token: String): Boolean {
         val auth: FirebaseAuth = FirebaseAuth.getInstance()
         try {
             val decodedToken = auth.verifyIdToken(token);
             val uid = decodedToken.uid;
-            return ResponseEntity.ok(uid);
+            return true;
         } catch (e: FirebaseAuthException) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+            return false;
         }
     }
 
