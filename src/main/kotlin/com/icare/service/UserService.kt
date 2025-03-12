@@ -1,8 +1,10 @@
 package com.icare.service
 
+import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.ResponseModel
 
 interface UserService {
-    fun registerUser(patient: PatientModel): ResponseModel
+    fun registerPatient(patient: PatientModel): ResponseModel
+    fun registerDoctor(doctor: DoctorModel): ResponseModel
 }

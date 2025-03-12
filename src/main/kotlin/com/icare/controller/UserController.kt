@@ -1,5 +1,6 @@
 package com.icare.controller
 
+import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.ResponseModel
 import com.icare.service.UserService
@@ -19,8 +20,13 @@ class UserController {
 
 
     @PostMapping("/patient_register")
-    fun register(@RequestBody patient: PatientModel): ResponseModel{
-        return userService.registerUser(patient)
+    fun patientRegister(@RequestBody patient: PatientModel): ResponseModel {
+        return userService.registerPatient(patient)
+    }
+
+    @PostMapping("/doctor_register")
+    fun DoctorRegister(@RequestBody doctor: DoctorModel): ResponseModel {
+        return userService.registerDoctor(doctor)
     }
 
 
