@@ -1,5 +1,6 @@
 package com.icare.service
 
+import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.ResponseModel
 import com.icare.repository.UserRepository
@@ -12,8 +13,12 @@ class UserServiceImpl:UserService {
     @Autowired
     lateinit var repository: UserRepository
 
-   override fun registerUser(patient: PatientModel): ResponseModel {
+   override fun registerPatient(patient: PatientModel): ResponseModel {
            return repository.registerPatient(patient)
+    }
+
+    override fun registerDoctor(doctor: DoctorModel): ResponseModel {
+        return repository.registerDoctor(doctor)
     }
 
 }
