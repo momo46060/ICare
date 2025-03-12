@@ -42,8 +42,8 @@ class UserRepositoryImpl : UserRepository {
                     iCareJdbcTemplate.update(sqlInsert)
                     return ResponseModel(OK, null)
                 } else {
-                    return ResponseModel(DUPLICATE_USER, null)
                     iCareJdbcTemplate.update(deleteUser)
+                    return ResponseModel(DUPLICATE_USER, null)
                 }
             } catch (e: Exception) {
                 println(e.stackTrace)
