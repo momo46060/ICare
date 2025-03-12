@@ -1,6 +1,7 @@
 package com.icare.controller
 
 import com.icare.model.PatientModel
+import com.icare.model.ResponseModel
 import com.icare.service.UserSevice
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PostMapping
@@ -18,7 +19,7 @@ class UserController {
 
 
     @PostMapping("/patient_register")
-    fun register(@RequestBody patient: PatientModel): Boolean {
+    fun register(@RequestBody patient: PatientModel): ResponseModel{
         return userService.registerUser(patient)
     }
 
