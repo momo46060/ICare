@@ -16,9 +16,9 @@ class UserRepositoryImpl : UserRepository {
     @Autowired
     lateinit var iCareJdbcTemplate: JdbcTemplate
 
-    override fun registerPatient(patient: PatientModel): ResponseModel {
+    override fun registerPatient(patient: PatientModel): Short {
         if (getUid(patient.token) == null) {
-            return ResponseModel(INVALID_TOKEN, null)
+            return INVALID_TOKEN
         } else {
             val deleteUser = """
                 delete from Users where UserID = '${getUid(patient.token)}';
@@ -54,23 +54,23 @@ class UserRepositoryImpl : UserRepository {
                     )
                 ) {
                     iCareJdbcTemplate.update(sqlMerge)
-                    return ResponseModel(OK, null)
+                    return OK
                 } else {
                     iCareJdbcTemplate.update(deleteUser)
-                    return ResponseModel(DUPLICATE_USER, null)
+                    return DUPLICATE_USER
                 }
             } catch (e: Exception) {
                 println(e.stackTrace)
                 println(e.message)
                 iCareJdbcTemplate.update(deleteUser)
-                return ResponseModel(FAILED, null)
+                return FAILED
             }
         }
     }
 
-    override fun registerDoctor(doctor: DoctorModel): ResponseModel {
+    override fun registerDoctor(doctor: DoctorModel): Short {
         if (getUid(doctor.token) == null) {
-            return ResponseModel(INVALID_TOKEN, null)
+            return INVALID_TOKEN
         } else {
             val deleteUser = """
                 delete from Users where UserID = '${getUid(doctor.token)}';
@@ -104,16 +104,16 @@ WHEN NOT MATCHED BY TARGET THEN
                     )
                 ) {
                     iCareJdbcTemplate.update(meargsql)
-                    return ResponseModel(OK, null)
+                    return OK
                 } else {
                     iCareJdbcTemplate.update(deleteUser)
-                    return ResponseModel(DUPLICATE_USER, null)
+                    return DUPLICATE_USER
                 }
             } catch (e: Exception) {
                 println(e.stackTrace)
                 println(e.message)
                 iCareJdbcTemplate.update(deleteUser)
-                return ResponseModel(FAILED, null)
+                return FAILED
             }
         }
     }
