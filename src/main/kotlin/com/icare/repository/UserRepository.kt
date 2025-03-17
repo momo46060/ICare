@@ -8,8 +8,8 @@ import com.icare.model.Users
 
 interface UserRepository {
 
-    fun registerPatient(patient: PatientModel): ResponseModel
-    fun registerDoctor(doctor: DoctorModel): ResponseModel
+    fun registerPatient(patient: PatientModel): Short
+    fun registerDoctor(doctor: DoctorModel): Short
     fun insertUser(user: Users): Boolean
 
 }

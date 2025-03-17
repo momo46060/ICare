@@ -14,11 +14,11 @@ class UserServiceImpl:UserService {
     lateinit var repository: UserRepository
 
    override fun registerPatient(patient: PatientModel): ResponseModel {
-           return repository.registerPatient(patient)
+           return ResponseModel(repository.registerPatient(patient),null)
     }
 
     override fun registerDoctor(doctor: DoctorModel): ResponseModel {
-        return repository.registerDoctor(doctor)
+        return ResponseModel(repository.registerDoctor(doctor),null)
     }
 
 }
