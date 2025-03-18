@@ -1,5 +1,6 @@
 package com.icare.repository
 
+import com.icare.model.CenterStaffModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.ResponseModel
@@ -148,6 +149,56 @@ WHEN NOT MATCHED BY TARGET THEN
             println(e.stackTrace)
             println(e.message)
             return false
+        }
+    }
+
+    override fun registerCenterStaff(centerStaff: CenterStaffModel): ResponseModel {
+        if (getUid(centerStaff.token) == null) {
+            return ResponseModel(INVALID_TOKEN, null)
+        } else {
+            val deleteUser = """
+                delete from Users where UserID = '${getUid(centerStaff.token)}';
+            """.trimIndent()
+            val meargsql = """
+                MERGE INTO Center_Staff AS target
+USING (VALUES ('${getUid(centerStaff.token)}', '${centerStaff.LabCenterID}',))
+    AS source (Staff_ID, Lab_Center_ID)
+ON target.Staff_ID = source.Staff_ID
+WHEN MATCHED THEN
+    UPDATE SET
+        target.Staff_ID = source.Staff_ID,
+        target.Lab_Center_ID = source.Lab_Center_ID
+        
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (Staff_ID, Lab_Center_ID)
+    VALUES (source.Staff_ID, source.Lab_Center_ID);
+            """.trimIndent()
+            try {
+                if (insertUser(
+                        Users(
+                            getUid(centerStaff.token)!!,
+                            centerStaff.RoleID,
+                            centerStaff.FirstName,
+                            centerStaff.LastName,
+                            centerStaff.Email,
+                            centerStaff.BirthDate,
+                            centerStaff.Gender,
+                            centerStaff.IsActive
+                        )
+                    )
+                ) {
+                    iCareJdbcTemplate.update(meargsql)
+                    return ResponseModel(OK, null)
+                } else {
+                    iCareJdbcTemplate.update(deleteUser)
+                    return ResponseModel(DUPLICATE_USER, null)
+                }
+            } catch (e: Exception) {
+                println(e.stackTrace)
+                println(e.message)
+                iCareJdbcTemplate.update(deleteUser)
+                return ResponseModel(FAILED, null)
+            }
         }
     }
 
