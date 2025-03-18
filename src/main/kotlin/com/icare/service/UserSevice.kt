@@ -4,6 +4,7 @@ import com.icare.model.CenterStaffModel
 import com.icare.model.ClinicModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
+import com.icare.model.PharmacyModel
 import com.icare.model.ResponseModel
 import com.icare.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,6 +30,10 @@ class UserServiceImpl:UserService {
 
     override fun addClinic(clinic: ClinicModel): ResponseModel {
         return ResponseModel(repository.addClinic(clinic),null)
+    }
+
+    override fun addPhamacy(pharmacy: PharmacyModel): ResponseModel {
+       return ResponseModel(repository.addPharmacy(pharmacy),null)
     }
 
 }

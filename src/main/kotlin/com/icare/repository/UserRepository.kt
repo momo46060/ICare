@@ -5,6 +5,7 @@ import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.ResponseModel
 import com.icare.model.ClinicModel
+import com.icare.model.PharmacyModel
 import com.icare.model.Users
 
 
@@ -15,5 +16,6 @@ interface UserRepository {
     fun insertUser(user: Users): Boolean
     fun registerCenterStaff(centerStaff: CenterStaffModel): ResponseModel
     fun addClinic(clinic:ClinicModel):Short
+    fun addPharmacy(pharmacy: PharmacyModel): Short
 
 }
