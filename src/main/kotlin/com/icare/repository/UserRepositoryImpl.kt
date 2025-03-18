@@ -1,6 +1,7 @@
 package com.icare.repository
 
 import com.icare.model.CenterStaffModel
+import com.icare.model.ClinicModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.ResponseModel
@@ -9,6 +10,7 @@ import com.icare.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import sun.jvm.hotspot.HelloWorld.e
 
 
 @Repository
@@ -202,5 +204,21 @@ WHEN NOT MATCHED BY TARGET THEN
         }
     }
 
-
-}
+    override fun addClinic(clinic: ClinicModel): Short {
+        val sql = """
+            insert into Clinics(ClinicID,Openinig_Hours,Clinic_Name,ClinicType,StaffCount,
+            Phone,ClinicLocation,IsOpen)
+            values ('${clinic.ClinicID}','${clinic.Openinig_Hours}','${clinic.ClinicName}'
+,'${clinic.ClinicType}','${clinic.StaffCount}','${clinic.Phone}','${clinic.ClinicLocaltion}'
+,'${clinic.isOpen}')
+        """.trimIndent()
+        try {
+            iCareJdbcTemplate.update(sql)
+                return OK
+        } catch (e: Exception) {
+            println(e.stackTrace)
+            println(e.message)
+            return FAILED
+        }
+    }
+    }

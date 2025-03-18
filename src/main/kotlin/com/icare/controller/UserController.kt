@@ -1,6 +1,7 @@
 package com.icare.controller
 
 import com.icare.model.CenterStaffModel
+import com.icare.model.ClinicModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.ResponseModel
@@ -33,6 +34,12 @@ class UserController {
     @PostMapping("/centerStaff_register")
     fun centerStaffRegister(@RequestBody centerStaff: CenterStaffModel): ResponseModel {
         return userService.registerCenterStaff(centerStaff)
+    }
+
+
+    @PostMapping("/add_clinic")
+    fun addClinic(@RequestBody clinicModel: ClinicModel): ResponseModel {
+        return userService.addClinic(clinicModel)
     }
 
 }

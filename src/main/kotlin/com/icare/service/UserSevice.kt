@@ -1,6 +1,7 @@
 package com.icare.service
 
 import com.icare.model.CenterStaffModel
+import com.icare.model.ClinicModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.ResponseModel
@@ -24,6 +25,10 @@ class UserServiceImpl:UserService {
 
     override fun registerCenterStaff(centerStaffModel: CenterStaffModel): ResponseModel {
         return repository.registerCenterStaff(centerStaffModel)
+    }
+
+    override fun addClinic(clinic: ClinicModel): ResponseModel {
+        return ResponseModel(repository.addClinic(clinic),null)
     }
 
 }
