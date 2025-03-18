@@ -43,7 +43,7 @@ class UserRepositoryImpl : UserRepository {
                 if (insertUser(
                         Users(
                             getUid(patient.token)!!,
-                            patient.roleID,
+                            1,
                             patient.fName,
                             patient.lName,
                             patient.email,
