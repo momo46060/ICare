@@ -1,9 +1,11 @@
 package com.icare.repository
 
+import com.google.api.services.storage.Storage
 import com.icare.model.CenterStaffModel
 import com.icare.model.ClinicModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
+import com.icare.model.PharmacyModel
 import com.icare.model.ResponseModel
 import com.icare.model.Users
 import com.icare.utils.*
@@ -221,4 +223,21 @@ WHEN NOT MATCHED BY TARGET THEN
             return FAILED
         }
     }
+    override fun addPharmacy(pharmacy: PharmacyModel): Short {
+        val sql="""
+        insert into Pharmacies(Phamacy_ID,PhamacyName,Phone,Email,PhamacyAddress,
+            ContactStatus,PharmacyLocation)
+        values(${pharmacy.Pharmacy_ID},${pharmacy.Pharmacy_Name},${pharmacy.Phone}, 
+        ${pharmacy.Email},${pharmacy.PharmacyAddress},${pharmacy.ContactStatus},${pharmacy.PhamacyLocation})
+       """.trimIndent()
+        try {
+            iCareJdbcTemplate.update(sql)
+            return OK
+        } catch (e: Exception) {
+            println(e.stackTrace)
+            println(e.message)
+            return FAILED
+        }
+    }
+
     }
