@@ -51,5 +51,10 @@ class UserController {
     fun getClinics (@RequestBody token: String): ResponseModel {
     return userService.getClinics(token)
     }
+
+    @PostMapping("/getPharmacy")
+    fun getPharmacy(@RequestBody token: String): ResponseModel {
+        return userService.getPharmacy(token)
+    }
 }
 
