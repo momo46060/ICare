@@ -1,6 +1,5 @@
 package com.icare.model
 
-import java.util.Date
 
 data class Users (
     val userId: String = "0",
@@ -11,5 +10,8 @@ data class Users (
     val birthDate:String="",
     val gender:String="",
     val isActive:Boolean=true,
+    val phoneNumber: String = "",
+    val address: String = "",
+    val nationalId:String=""
 
     )

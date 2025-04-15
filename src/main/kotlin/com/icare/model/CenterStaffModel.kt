@@ -12,4 +12,7 @@ data class CenterStaffModel (
     val BirthDate:String="",
     val Gender:String="",
     val IsActive:Boolean=false,
+    val phoneNumber: String = "",
+    val address: String = "",
+    val nationalId:String=""
 )
