@@ -263,4 +263,21 @@ WHEN NOT MATCHED BY TARGET THEN
         }
     }
 
+    override fun getClinics(): List<ClinicModel> {
+        val sql="""
+            select * from Clinics
+        """.trimIndent()
+           return iCareJdbcTemplate.query(sql) { rs, _ ->
+                    ClinicModel(
+                        ClinicID = rs.getString("ClinicID"),
+                        Openinig_Hours = rs.getInt("Opening_Hours"),
+                        ClinicName = rs.getString("Clinic_Name"),
+                        ClinicType = rs.getString("ClinicType"),
+                        StaffCount = rs.getInt("StaffCount"),
+                        Phone = rs.getString("Phone"),
+                        ClinicLocaltion = rs.getString("ClinicLocation"),
+                        isOpen=rs.getBoolean("IsOpen")
+                    )
+                }
+    }
 }
