@@ -13,5 +13,6 @@ interface UserService {
     fun registerCenterStaff(centerStaffModel: CenterStaffModel): ResponseModel
     fun addClinic(clinic: ClinicModel): ResponseModel
     fun addPhamacy(pharmacy: PharmacyModel): ResponseModel
+    fun getClinics (token:String): ResponseModel
 }
 

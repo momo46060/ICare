@@ -7,6 +7,11 @@ import com.icare.model.PatientModel
 import com.icare.model.PharmacyModel
 import com.icare.model.ResponseModel
 import com.icare.repository.UserRepository
+import com.icare.utils.EMPTY_LIST
+import com.icare.utils.FAILED
+import com.icare.utils.INVALID_TOKEN
+import com.icare.utils.OK
+import com.icare.utils.getUid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -34,6 +39,23 @@ class UserServiceImpl:UserService {
 
     override fun addPhamacy(pharmacy: PharmacyModel): ResponseModel {
        return ResponseModel(repository.addPharmacy(pharmacy),"")
+    }
+
+    override fun getClinics(token:String): ResponseModel {
+                try {
+                    if(getUid(token) == null) {
+                        return ResponseModel(status=INVALID_TOKEN)
+                    }else if (repository.getClinics().isEmpty()){
+                        return ResponseModel(status= EMPTY_LIST)
+                    }else{
+                        return ResponseModel(status=OK,data = repository.getClinics())
+                    }
+                }catch (e:Exception){
+                    e.printStackTrace()
+                    return ResponseModel(status= FAILED)
+                }
+
+
     }
 
 }
