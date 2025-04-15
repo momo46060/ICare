@@ -60,7 +60,7 @@ class UserServiceImpl:UserService {
 
     override fun getPharmacy(token: String): ResponseModel {
         try {
-            if (/*getUid(token) == null*/false) {
+            if (getUid(token) == null) {
                 return ResponseModel(status=INVALID_TOKEN)
             }else if (repository.getPharmacy().isEmpty()){
                 return ResponseModel(status= EMPTY_LIST)
