@@ -18,5 +18,6 @@ interface UserRepository {
     fun addClinic(clinic:ClinicModel):Short
     fun addPharmacy(pharmacy: PharmacyModel): Short
     fun getClinics (): List<ClinicModel>
+    fun getPharmacy(): List<PharmacyModel>
 
 }

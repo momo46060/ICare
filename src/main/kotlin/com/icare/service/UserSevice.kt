@@ -58,4 +58,20 @@ class UserServiceImpl:UserService {
 
     }
 
+    override fun getPharmacy(token: String): ResponseModel {
+        try {
+            if (/*getUid(token) == null*/false) {
+                return ResponseModel(status=INVALID_TOKEN)
+            }else if (repository.getPharmacy().isEmpty()){
+                return ResponseModel(status= EMPTY_LIST)
+            }else{
+                return ResponseModel(status= OK, data = repository.getPharmacy())
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            return ResponseModel(status= FAILED)
+        }
+
+    }
+
 }

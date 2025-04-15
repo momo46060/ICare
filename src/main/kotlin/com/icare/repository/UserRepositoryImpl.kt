@@ -280,4 +280,21 @@ WHEN NOT MATCHED BY TARGET THEN
                     )
                 }
     }
+
+    override fun getPharmacy(): List<PharmacyModel> {
+        val sql = """
+            select * from Pharmacies
+        """.trimIndent()
+        return iCareJdbcTemplate.query(sql){rs, _ ->
+            PharmacyModel(
+                Pharmacy_ID = rs.getString("Pharmacy_ID"),
+                Pharmacy_Name = rs.getString("PharmacyName"),
+                Phone = rs.getString("Phone"),
+                Email = rs.getString("Email"),
+                PharmacyAddress = rs.getString("PharmacyAddress"),
+                ContactStatus = rs.getString("ContactStatus"),
+                PhamacyLocation = rs.getString("PharmacyLocation"),
+            )
+        }
+    }
 }
