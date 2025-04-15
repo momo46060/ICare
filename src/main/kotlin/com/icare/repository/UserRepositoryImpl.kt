@@ -12,7 +12,7 @@ import com.icare.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import sun.jvm.hotspot.HelloWorld.e
+import kotlin.math.log
 
 
 @Repository
@@ -29,8 +29,9 @@ class UserRepositoryImpl : UserRepository {
                 delete from Users where UserID = '${getUid(patient.token)}';
             """.trimIndent()
             val sqlMerge = """
-    MERGE INTO Patient AS target
-    USING (VALUES ('12345', 'Diabetes', 'Insulin', 'Peanuts', 'Appendectomy', 70.5))
+    MERGE INTO Patients AS target
+    USING (VALUES ('${getUid(patient.token)}', '${patient.chronicDiseases}','${patient.currentMedications}',
+     '${patient.allergies}', '${patient.pastSurgeries}','${patient.weight}'))
         AS source ([Patient_ID], [ChronicDiseases], [CurrentMedications], [Allergies], [PastSurgeries], [Weight])
     ON target.[Patient_ID] = source.[Patient_ID]
     WHEN MATCHED THEN
@@ -43,7 +44,7 @@ class UserRepositoryImpl : UserRepository {
     WHEN NOT MATCHED BY TARGET THEN
         INSERT ([Patient_ID], [ChronicDiseases], [CurrentMedications], [Allergies], [PastSurgeries], [Weight])
         VALUES (source.[Patient_ID], source.[ChronicDiseases], source.[CurrentMedications], source.[Allergies], source.[PastSurgeries], source.[Weight]);
-""".trimIndent()
+ """.trimIndent()
             try {
                 if (insertUser(
                         Users(
@@ -54,10 +55,14 @@ class UserRepositoryImpl : UserRepository {
                             patient.email,
                             patient.birthDate,
                             patient.gender,
-                            patient.isActive
+                            patient.isActive,
+                            phoneNumber = patient.phoneNumber,
+                            address = patient.address,
+                            nationalId = patient.nationalId,
                         )
                     )
                 ) {
+
                     iCareJdbcTemplate.update(sqlMerge)
                     return OK
                 } else {
@@ -104,7 +109,10 @@ WHEN NOT MATCHED BY TARGET THEN
                             doctor.email,
                             doctor.birthDate,
                             doctor.gender,
-                            doctor.isActive
+                            doctor.isActive,
+                            phoneNumber = doctor.phoneNumber,
+                            address = doctor.address,
+                            nationalId = doctor.nationalId,
                         )
                     )
                 ) {
@@ -124,10 +132,14 @@ WHEN NOT MATCHED BY TARGET THEN
     }
 
     override fun insertUser(user: Users): Boolean {
+
         val meargsql = """
               MERGE INTO Users AS target
-USING (VALUES ('${user.userId}', '${user.roleID}', '${user.fName}', '${user.lName}', '${user.email}', '${user.birthDate}', '${user.gender}', '${user.isActive}'))
-    AS source ([UserID], [RoleID], [FirstName], [LastName], [Email], [BirthDate], [Gender], [IsActive])
+USING (VALUES ('${user.userId}', '${user.roleID}', '${user.fName}', '${user.lName}', '${user.email}', '${user.birthDate}', '${user.gender}', '${user.isActive}','${user.phoneNumber}','${user.address}','${user.nationalId}'))
+   AS source (
+    [UserID], [RoleID], [FirstName], [LastName], [Email], [BirthDate], [Gender], [IsActive], 
+    [phone], [address], [national_id]
+)
 ON target.[UserID] = source.[UserID]
 WHEN MATCHED THEN
     UPDATE SET
@@ -137,15 +149,22 @@ WHEN MATCHED THEN
         target.[Email] = source.[Email],
         target.[BirthDate] = source.[BirthDate],
         target.[Gender] = source.[Gender],
-        target.[IsActive] = source.[IsActive]
+        target.[IsActive] = source.[IsActive],
+        target.[phone] = source.[phone],
+        target.[address] = source.[address],
+        target.[national_id] = source.[national_id]  -- <-- Removed trailing comma
 WHEN NOT MATCHED BY TARGET THEN
-    INSERT ([UserID], [RoleID], [FirstName], [LastName], [Email], [BirthDate], [Gender], [IsActive])
-    VALUES (source.[UserID], 
-    source.[RoleID], 
-    source.[FirstName],
-     source.[LastName], source.[Email], source.[BirthDate],
-      source.[Gender], source.[IsActive]);
-                                     """.trimIndent()
+    INSERT (
+        [UserID], [RoleID], [FirstName], [LastName], [Email], 
+        [BirthDate], [Gender], [IsActive], [phone], 
+        [address], [national_id]
+    )
+    VALUES (
+        source.[UserID], source.[RoleID], source.[FirstName], 
+        source.[LastName], source.[Email], source.[BirthDate], 
+        source.[Gender], source.[IsActive], source.[phone], 
+        source.[address], source.[national_id]
+    );""".trimIndent()
         try {
             iCareJdbcTemplate.update(meargsql)
             return true
@@ -158,7 +177,7 @@ WHEN NOT MATCHED BY TARGET THEN
 
     override fun registerCenterStaff(centerStaff: CenterStaffModel): ResponseModel {
         if (getUid(centerStaff.token) == null) {
-            return ResponseModel(INVALID_TOKEN, null)
+            return ResponseModel(INVALID_TOKEN, "")
         } else {
             val deleteUser = """
                 delete from Users where UserID = '${getUid(centerStaff.token)}';
@@ -187,21 +206,24 @@ WHEN NOT MATCHED BY TARGET THEN
                             centerStaff.Email,
                             centerStaff.BirthDate,
                             centerStaff.Gender,
-                            centerStaff.IsActive
+                            centerStaff.IsActive,
+                            phoneNumber = centerStaff.phoneNumber,
+                            address = centerStaff.address,
+                            nationalId = centerStaff.nationalId,
                         )
                     )
                 ) {
                     iCareJdbcTemplate.update(meargsql)
-                    return ResponseModel(OK, null)
+                    return ResponseModel(OK, "")
                 } else {
                     iCareJdbcTemplate.update(deleteUser)
-                    return ResponseModel(DUPLICATE_USER, null)
+                    return ResponseModel(DUPLICATE_USER, "")
                 }
             } catch (e: Exception) {
                 println(e.stackTrace)
                 println(e.message)
                 iCareJdbcTemplate.update(deleteUser)
-                return ResponseModel(FAILED, null)
+                return ResponseModel(FAILED, "")
             }
         }
     }
@@ -216,15 +238,16 @@ WHEN NOT MATCHED BY TARGET THEN
         """.trimIndent()
         try {
             iCareJdbcTemplate.update(sql)
-                return OK
+            return OK
         } catch (e: Exception) {
             println(e.stackTrace)
             println(e.message)
             return FAILED
         }
     }
+
     override fun addPharmacy(pharmacy: PharmacyModel): Short {
-        val sql="""
+        val sql = """
         insert into Pharmacies(Phamacy_ID,PhamacyName,Phone,Email,PhamacyAddress,
             ContactStatus,PharmacyLocation)
         values(${pharmacy.Pharmacy_ID},${pharmacy.Pharmacy_Name},${pharmacy.Phone}, 
@@ -240,4 +263,4 @@ WHEN NOT MATCHED BY TARGET THEN
         }
     }
 
-    }
+}

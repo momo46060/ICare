@@ -13,4 +13,7 @@ data class DoctorModel(
     val specialization:String="",
     val doctorAvailability:String="",
     val clincId:String="",
+    val phoneNumber: String = "",
+    val address: String = "",
+    val nationalId:String=""
 )

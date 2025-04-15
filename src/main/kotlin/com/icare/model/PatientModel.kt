@@ -1,5 +1,8 @@
 package com.icare.model
 
+import com.google.type.PhoneNumber
+import javax.naming.RefAddr
+
 data class PatientModel(
     val token:String="",
     val fName:String="",
@@ -13,4 +16,7 @@ data class PatientModel(
     val allergies: String = "",
     val pastSurgeries: String = "",
     val weight: Double = 0.0,
+    val phoneNumber: String = "",
+    val address: String = "",
+    val nationalId:String=""
 )

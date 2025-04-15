@@ -17,11 +17,11 @@ class UserServiceImpl:UserService {
     lateinit var repository: UserRepository
 
    override fun registerPatient(patient: PatientModel): ResponseModel {
-           return ResponseModel(repository.registerPatient(patient),null)
+           return ResponseModel(repository.registerPatient(patient),"")
     }
 
     override fun registerDoctor(doctor: DoctorModel): ResponseModel {
-        return ResponseModel(repository.registerDoctor(doctor),null)
+        return ResponseModel(repository.registerDoctor(doctor),"")
     }
 
     override fun registerCenterStaff(centerStaffModel: CenterStaffModel): ResponseModel {
@@ -29,11 +29,11 @@ class UserServiceImpl:UserService {
     }
 
     override fun addClinic(clinic: ClinicModel): ResponseModel {
-        return ResponseModel(repository.addClinic(clinic),null)
+        return ResponseModel(repository.addClinic(clinic),"")
     }
 
     override fun addPhamacy(pharmacy: PharmacyModel): ResponseModel {
-       return ResponseModel(repository.addPharmacy(pharmacy),null)
+       return ResponseModel(repository.addPharmacy(pharmacy),"")
     }
 
 }
