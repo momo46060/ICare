@@ -5,7 +5,6 @@ import com.icare.model.CenterStaffModel
 import com.icare.model.ClinicModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
-import com.icare.model.PharmacyModel
 import com.icare.model.ResponseModel
 import com.icare.model.Users
 import com.icare.utils.*
@@ -87,17 +86,18 @@ class UserRepositoryImpl : UserRepository {
             """.trimIndent()
             val meargsql = """
                 MERGE INTO Doctor AS target
-USING (VALUES ('${getUid(doctor.token)}', '${doctor.specialization}', '${doctor.doctorAvailability}', '${doctor.clincId}'))
-    AS source (DoctorID, Specialization, Doctor_Availability, ClinicID)
+USING (VALUES ('${getUid(doctor.token)}', '${doctor.specialization}', '${doctor.fromTime}','${doctor.toTime}', '${doctor.clincId}'))
+    AS source (DoctorID, Specialization, ClinicID,from_time,to_time)
 ON target.DoctorID = source.DoctorID
 WHEN MATCHED THEN
     UPDATE SET
         target.Specialization = source.Specialization,
-        target.Doctor_Availability = source.Doctor_Availability,
-        target.ClinicID = source.ClinicID
+        target.ClinicID = source.ClinicID,
+        target.fromTime = source.from_time,
+        target.toTime = source.to_time,
 WHEN NOT MATCHED BY TARGET THEN
-    INSERT (DoctorID, Specialization, Doctor_Availability, ClinicID)
-    VALUES (source.DoctorID, source.Specialization, source.Doctor_Availability, source.ClinicID);
+    INSERT (DoctorID, Specialization , ClinicID , from_time , to_time)
+    VALUES (source.DoctorID, source.Specialization, source.ClinicID , source.from_time, source.to_time);
             """.trimIndent()
             try {
                 if (insertUser(
@@ -228,73 +228,7 @@ WHEN NOT MATCHED BY TARGET THEN
         }
     }
 
-    override fun addClinic(clinic: ClinicModel): Short {
-        val sql = """
-            insert into Clinics(ClinicID,Openinig_Hours,Clinic_Name,ClinicType,StaffCount,
-            Phone,ClinicLocation,IsOpen)
-            values ('${clinic.ClinicID}','${clinic.Openinig_Hours}','${clinic.ClinicName}'
-,'${clinic.ClinicType}','${clinic.StaffCount}','${clinic.Phone}','${clinic.ClinicLocaltion}'
-,'${clinic.isOpen}')
-        """.trimIndent()
-        try {
-            iCareJdbcTemplate.update(sql)
-            return OK
-        } catch (e: Exception) {
-            println(e.stackTrace)
-            println(e.message)
-            return FAILED
-        }
-    }
 
-    override fun addPharmacy(pharmacy: PharmacyModel): Short {
-        val sql = """
-        insert into Pharmacies(Phamacy_ID,PhamacyName,Phone,Email,PhamacyAddress,
-            ContactStatus,PharmacyLocation)
-        values(${pharmacy.Pharmacy_ID},${pharmacy.Pharmacy_Name},${pharmacy.Phone}, 
-        ${pharmacy.Email},${pharmacy.PharmacyAddress},${pharmacy.ContactStatus},${pharmacy.PhamacyLocation})
-       """.trimIndent()
-        try {
-            iCareJdbcTemplate.update(sql)
-            return OK
-        } catch (e: Exception) {
-            println(e.stackTrace)
-            println(e.message)
-            return FAILED
-        }
-    }
 
-    override fun getClinics(): List<ClinicModel> {
-        val sql="""
-            select * from Clinics
-        """.trimIndent()
-           return iCareJdbcTemplate.query(sql) { rs, _ ->
-                    ClinicModel(
-                        ClinicID = rs.getString("ClinicID"),
-                        Openinig_Hours = rs.getInt("Opening_Hours"),
-                        ClinicName = rs.getString("Clinic_Name"),
-                        ClinicType = rs.getString("ClinicType"),
-                        StaffCount = rs.getInt("StaffCount"),
-                        Phone = rs.getString("Phone"),
-                        ClinicLocaltion = rs.getString("ClinicLocation"),
-                        isOpen=rs.getBoolean("IsOpen")
-                    )
-                }
-    }
 
-    override fun getPharmacy(): List<PharmacyModel> {
-        val sql = """
-            select * from Pharmacies
-        """.trimIndent()
-        return iCareJdbcTemplate.query(sql){rs, _ ->
-            PharmacyModel(
-                Pharmacy_ID = rs.getString("Pharmacy_ID"),
-                Pharmacy_Name = rs.getString("PharmacyName"),
-                Phone = rs.getString("Phone"),
-                Email = rs.getString("Email"),
-                PharmacyAddress = rs.getString("PharmacyAddress"),
-                ContactStatus = rs.getString("ContactStatus"),
-                PhamacyLocation = rs.getString("PharmacyLocation"),
-            )
-        }
-    }
 }
