@@ -15,9 +15,7 @@ interface UserRepository {
     fun registerDoctor(doctor: DoctorModel): Short
     fun insertUser(user: Users): Boolean
     fun registerCenterStaff(centerStaff: CenterStaffModel): ResponseModel
-    fun addClinic(clinic:ClinicModel):Short
-    fun addPharmacy(pharmacy: PharmacyModel): Short
-    fun getClinics (): List<ClinicModel>
-    fun getPharmacy(): List<PharmacyModel>
+
+
 
 }

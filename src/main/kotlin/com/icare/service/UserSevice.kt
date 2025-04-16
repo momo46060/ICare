@@ -33,45 +33,8 @@ class UserServiceImpl:UserService {
         return repository.registerCenterStaff(centerStaffModel)
     }
 
-    override fun addClinic(clinic: ClinicModel): ResponseModel {
-        return ResponseModel(repository.addClinic(clinic),"")
-    }
-
-    override fun addPhamacy(pharmacy: PharmacyModel): ResponseModel {
-       return ResponseModel(repository.addPharmacy(pharmacy),"")
-    }
-
-    override fun getClinics(token:String): ResponseModel {
-                try {
-                    if(getUid(token) == null) {
-                        return ResponseModel(status=INVALID_TOKEN)
-                    }else if (repository.getClinics().isEmpty()){
-                        return ResponseModel(status= EMPTY_LIST)
-                    }else{
-                        return ResponseModel(status=OK,data = repository.getClinics())
-                    }
-                }catch (e:Exception){
-                    e.printStackTrace()
-                    return ResponseModel(status= FAILED)
-                }
 
 
-    }
 
-    override fun getPharmacy(token: String): ResponseModel {
-        try {
-            if (getUid(token) == null) {
-                return ResponseModel(status=INVALID_TOKEN)
-            }else if (repository.getPharmacy().isEmpty()){
-                return ResponseModel(status= EMPTY_LIST)
-            }else{
-                return ResponseModel(status= OK, data = repository.getPharmacy())
-            }
-        }catch (e:Exception){
-            e.printStackTrace()
-            return ResponseModel(status= FAILED)
-        }
-
-    }
 
 }

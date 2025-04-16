@@ -1,10 +1,8 @@
 package com.icare.controller
 
 import com.icare.model.CenterStaffModel
-import com.icare.model.ClinicModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
-import com.icare.model.PharmacyModel
 import com.icare.model.ResponseModel
 import com.icare.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/userApi")
 class UserController {
 
     @Autowired
@@ -39,22 +37,5 @@ class UserController {
     }
 
 
-    @PostMapping("/add_clinic")
-    fun addClinic(@RequestBody clinicModel: ClinicModel): ResponseModel {
-        return userService.addClinic(clinicModel)
-    }
-    @PostMapping("/addPharmacy")
-    fun addPharmacy(@RequestBody pharmacyModel: PharmacyModel): ResponseModel {
-        return userService.addPhamacy(pharmacyModel)
-    }
-    @PostMapping("/getclinics")
-    fun getClinics (@RequestBody token: String): ResponseModel {
-    return userService.getClinics(token)
-    }
-
-    @PostMapping("/getPharmacy")
-    fun getPharmacy(@RequestBody token: String): ResponseModel {
-        return userService.getPharmacy(token)
-    }
 }
 
