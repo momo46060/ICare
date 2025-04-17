@@ -16,7 +16,7 @@ class ClinicController {
     lateinit var service: ClinicService
 
     @PostMapping("/add_clinic")
-    fun addClinic(@RequestBody clinicModel: ClinicModel): ResponseModel {
+    fun addClinic(@RequestBody clinicModel:  ClinicModel): ResponseModel {
         return service.addClinic(clinicModel)
     }
 
