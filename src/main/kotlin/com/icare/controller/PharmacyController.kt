@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/pharmacyApi")
 class PharmacyController {
     @Autowired
-    lateinit var service: PharmacyService
+     lateinit var service: PharmacyService
 
     @PostMapping("/addPharmacy")
     fun addPharmacy(@RequestBody pharmacyModel: PharmacyModel): ResponseModel {
