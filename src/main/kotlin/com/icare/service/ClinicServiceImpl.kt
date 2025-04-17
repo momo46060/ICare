@@ -2,8 +2,7 @@ package com.icare.service
 
 import com.icare.model.ClinicModel
 import com.icare.model.ResponseModel
-import com.icare.repository.ClinicRepositry
-import com.icare.repository.PharmacyRepository
+import com.icare.repository.ClinicRepository
 import com.icare.utils.EMPTY_LIST
 import com.icare.utils.FAILED
 import com.icare.utils.INVALID_TOKEN
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service
 @Service
 class ClinicServiceImpl : ClinicService{
     @Autowired
-    lateinit var repository: ClinicRepositry
+    lateinit var repository: ClinicRepository
 
     override fun addClinic(clinic: ClinicModel): ResponseModel {
         return ResponseModel(repository.addClinic(clinic),"")
