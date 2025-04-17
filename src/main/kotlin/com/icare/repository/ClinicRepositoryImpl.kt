@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class ClinicRepositryImpl : ClinicRepositry {
+class ClinicRepositoryImpl : ClinicRepository {
 
     @Autowired
     lateinit var iCareJdbcTemplate: JdbcTemplate
@@ -37,7 +37,7 @@ class ClinicRepositryImpl : ClinicRepositry {
         val sql="""
             select * from Clinics
         """.trimIndent()
-        return iCareJdbcTemplate.query(sql) { rs, _ ->
+        return iCareJdbcTemplate.query(sql)  { rs, _ ->
             ClinicModel(
                 ClinicID = rs.getString("ClinicID"),
                 Openinig_Hours = rs.getInt("Opening_Hours"),
