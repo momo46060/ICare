@@ -1,8 +1,6 @@
 package com.icare.repository
 
-import com.google.api.services.storage.Storage
 import com.icare.model.CenterStaffModel
-import com.icare.model.ClinicModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.PharmacistsModel
@@ -12,7 +10,6 @@ import com.icare.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import kotlin.math.log
 
 
 @Repository
@@ -87,7 +84,7 @@ class UserRepositoryImpl : UserRepository {
             """.trimIndent()
             val meargsql = """
                 MERGE INTO Doctor AS target
-USING (VALUES ('${getUid(doctor.token)}', '${doctor.specialization}', '${doctor.fromTime}','${doctor.toTime}', '${doctor.clincId}'))
+USING (VALUES ('${getUid(doctor.token)}', '${doctor.specialization}', '${doctor.fromTime}','${doctor.toTime}', '${doctor.clinicId}'))
     AS source (DoctorID, Specialization, ClinicID,from_time,to_time)
 ON target.DoctorID = source.DoctorID
 WHEN MATCHED THEN
@@ -104,16 +101,11 @@ WHEN NOT MATCHED BY TARGET THEN
                 if (insertUser(
                         Users(
                             getUid(doctor.token)!!,
-                            doctor.roleID,
-                            doctor.fName,
-                            doctor.lName,
-                            doctor.email,
-                            doctor.birthDate,
-                            doctor.gender,
-                            doctor.isActive,
+                            fName = doctor.fName,
+                            lName = doctor.lName,
+                            email = doctor.email,
+                            isActive = doctor.isActive,
                             phoneNumber = doctor.phoneNumber,
-                            address = doctor.address,
-                            nationalId = doctor.nationalId,
                         )
                     )
                 ) {
@@ -185,7 +177,7 @@ WHEN NOT MATCHED BY TARGET THEN
             """.trimIndent()
             val meargsql = """
                 MERGE INTO Center_Staff AS target
-USING (VALUES ('${getUid(centerStaff.token)}', '${centerStaff.LabCenterID}',))
+USING (VALUES ('${getUid(centerStaff.token)}', '${centerStaff.labCenterID}',))
     AS source (Staff_ID, Lab_Center_ID)
 ON target.Staff_ID = source.Staff_ID
 WHEN MATCHED THEN
@@ -200,17 +192,12 @@ WHEN NOT MATCHED BY TARGET THEN
             try {
                 if (insertUser(
                         Users(
-                            getUid(centerStaff.token)!!,
-                            centerStaff.RoleID,
-                            centerStaff.FirstName,
-                            centerStaff.LastName,
-                            centerStaff.Email,
-                            centerStaff.BirthDate,
-                            centerStaff.Gender,
-                            centerStaff.IsActive,
+                            userId = getUid(centerStaff.token)!!,
+                            fName = centerStaff.firstName,
+                            lName = centerStaff.lastName,
+                            email = centerStaff.email,
+                            isActive = centerStaff.isActive,
                             phoneNumber = centerStaff.phoneNumber,
-                            address = centerStaff.address,
-                            nationalId = centerStaff.nationalId,
                         )
                     )
                 ) {
@@ -238,7 +225,7 @@ WHEN NOT MATCHED BY TARGET THEN
             """.trimIndent()
             val meargsql = """
                 MERGE INTO Pharmacists AS target
-USING (VALUES ('${getUid(pharmaciests.token)}', '${pharmaciests.PharmacyId}'))
+USING (VALUES ('${getUid(pharmaciests.token)}', '${pharmaciests.pharmacyId}'))
     AS source (pharmacistid, pharmacy_id)
 ON target.pharmacistid = source.pharmacistid
 WHEN MATCHED THEN
@@ -253,17 +240,12 @@ WHEN NOT MATCHED BY TARGET THEN
             try {
                 if (insertUser(
                         Users(
-                            getUid(pharmaciests.token)!!,
-                            pharmaciests.roleID,
-                            pharmaciests.fName,
-                            pharmaciests.lName,
-                            pharmaciests.email,
-                            pharmaciests.birthDate,
-                            pharmaciests.gender,
-                            pharmaciests.isActive,
+                            userId = getUid(pharmaciests.token)!!,
+                            fName = pharmaciests.fName,
+                            lName = pharmaciests.lName,
+                            email = pharmaciests.email,
+                            isActive = pharmaciests.isActive,
                             phoneNumber = pharmaciests.phoneNumber,
-                            address = pharmaciests.address,
-                            nationalId = pharmaciests.nationalId,
                         )
                     )
                 ) {
