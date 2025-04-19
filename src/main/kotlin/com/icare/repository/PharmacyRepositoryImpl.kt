@@ -1,6 +1,7 @@
 package com.icare.repository
 
 
+import com.icare.model.PharmacistsModel
 import com.icare.model.PharmacyModel
 import com.icare.utils.FAILED
 import com.icare.utils.OK
@@ -9,7 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
 
 @Repository
-class PharmacyRepositoryImpl: PharmacyRepository {
+class PharmacyRepositoryImpl : PharmacyRepository {
     @Autowired
     lateinit var iCareJdbcTemplate: JdbcTemplate
 
@@ -34,9 +35,9 @@ class PharmacyRepositoryImpl: PharmacyRepository {
         val sql = """
             select * from Pharmacies
         """.trimIndent()
-        return iCareJdbcTemplate.query(sql){rs, _ ->
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
             PharmacyModel(
-                Pharmacy_ID = rs.getString("Pharmacy_ID"),
+                Pharmacy_ID = rs.getInt("Pharmacy_ID"),
                 Pharmacy_Name = rs.getString("PharmacyName"),
                 Phone = rs.getString("Phone"),
                 Email = rs.getString("Email"),
@@ -44,6 +45,28 @@ class PharmacyRepositoryImpl: PharmacyRepository {
                 ContactStatus = rs.getString("ContactStatus"),
                 PhamacyLocation = rs.getString("PharmacyLocation"),
             )
+        }
+    }
+
+    override fun getPharmaciest(): List<PharmacistsModel> {
+        val sql = """
+            SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.phone, P.Pharmacy_ID
+                 FROM Pharmacists P
+                        JOIN Users U
+              ON P.Pharmacy_ID = U.UserID;
+        """.trimIndent()
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
+            PharmacistsModel(
+
+                token = rs.getString("UserID"),
+                fName = rs.getString("FirstName"),
+                lName = rs.getString("LastName"),
+                email = rs.getString("Email"),
+               phoneNumber = rs.getString("phone"),
+                PharmacyId = rs.getString("Pharmacy_ID"),
+
+
+                )
         }
     }
 

@@ -3,7 +3,7 @@ package com.icare.model
 
 
 data class ClinicModel (
-   val ClinicID: String,
+    val ClinicID: Int=0,
     val Openinig_Hours: Int,
     val ClinicName: String,
     val StaffCount: Int,

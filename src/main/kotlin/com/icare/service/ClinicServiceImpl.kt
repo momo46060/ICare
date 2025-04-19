@@ -23,11 +23,12 @@ class ClinicServiceImpl : ClinicService{
 
 
     override fun getClinics(token:String): ResponseModel {
+        val list = listOf<ClinicModel>()
         try {
             if(getUid(token) == null) {
                 return ResponseModel(status=INVALID_TOKEN)
             }else if (repository.getClinics().isEmpty()){
-                return ResponseModel(status= EMPTY_LIST)
+                return ResponseModel(status= EMPTY_LIST, data = listOf<ClinicModel>())
             }else{
                 return ResponseModel(status=OK,data = repository.getClinics())
             }

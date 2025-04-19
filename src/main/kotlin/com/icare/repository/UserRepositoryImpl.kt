@@ -5,6 +5,7 @@ import com.icare.model.CenterStaffModel
 import com.icare.model.ClinicModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
+import com.icare.model.PharmacistsModel
 import com.icare.model.ResponseModel
 import com.icare.model.Users
 import com.icare.utils.*
@@ -228,7 +229,58 @@ WHEN NOT MATCHED BY TARGET THEN
         }
     }
 
-
+    override fun registerPharmaciest(pharmaciests: PharmacistsModel): Short {
+        if (getUid(pharmaciests.token) == null) {
+            return INVALID_TOKEN
+        } else {
+            val deleteUser = """
+                delete from Users where UserID = '${getUid(pharmaciests.token)}';
+            """.trimIndent()
+            val meargsql = """
+                MERGE INTO Pharmacists AS target
+USING (VALUES ('${getUid(pharmaciests.token)}', '${pharmaciests.PharmacyId}'))
+    AS source (pharmacistid, pharmacy_id)
+ON target.pharmacistid = source.pharmacistid
+WHEN MATCHED THEN
+    UPDATE SET
+        target.pharmacistid = source.pharmacistid,
+        target.pharmacy_id = source.pharmacy_id,
+        
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (pharmacistid, pharmacy_id)
+    VALUES (source.pharmacistid, source.pharmacy_id);
+            """.trimIndent()
+            try {
+                if (insertUser(
+                        Users(
+                            getUid(pharmaciests.token)!!,
+                            pharmaciests.roleID,
+                            pharmaciests.fName,
+                            pharmaciests.lName,
+                            pharmaciests.email,
+                            pharmaciests.birthDate,
+                            pharmaciests.gender,
+                            pharmaciests.isActive,
+                            phoneNumber = pharmaciests.phoneNumber,
+                            address = pharmaciests.address,
+                            nationalId = pharmaciests.nationalId,
+                        )
+                    )
+                ) {
+                    iCareJdbcTemplate.update(meargsql)
+                    return OK
+                } else {
+                    iCareJdbcTemplate.update(deleteUser)
+                    return DUPLICATE_USER
+                }
+            } catch (e: Exception) {
+                println(e.stackTrace)
+                println(e.message)
+                iCareJdbcTemplate.update(deleteUser)
+                return FAILED
+            }
+        }
+    }
 
 
 }

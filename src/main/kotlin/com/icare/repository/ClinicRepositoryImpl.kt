@@ -15,9 +15,9 @@ class ClinicRepositoryImpl : ClinicRepository {
 
     override fun addClinic(clinic: ClinicModel): Short {
         val sql = """
-            insert into Clinics(ClinicID,Openinig_Hours,Clinic_Name,ClinicType,StaffCount,
+            insert into Clinics(Openinig_Hours,Clinic_Name,ClinicType,StaffCount,
             Phone,ClinicLocation,IsOpen)
-            values ('${clinic.ClinicID}','${clinic.Openinig_Hours}','${clinic.ClinicName}'
+            values ('${clinic.Openinig_Hours}','${clinic.ClinicName}'
 ,'${clinic.ClinicType}','${clinic.StaffCount}','${clinic.Phone}','${clinic.ClinicLocaltion}'
 ,'${clinic.isOpen}')
         """.trimIndent()
@@ -39,7 +39,7 @@ class ClinicRepositoryImpl : ClinicRepository {
         """.trimIndent()
         return iCareJdbcTemplate.query(sql)  { rs, _ ->
             ClinicModel(
-                ClinicID = rs.getString("ClinicID"),
+                ClinicID = rs.getInt("ClinicID"),
                 Openinig_Hours = rs.getInt("Opening_Hours"),
                 ClinicName = rs.getString("Clinic_Name"),
                 ClinicType = rs.getString("ClinicType"),

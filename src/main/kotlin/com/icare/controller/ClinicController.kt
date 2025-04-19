@@ -2,6 +2,7 @@ package com.icare.controller
 
 import com.icare.model.ClinicModel
 import com.icare.model.ResponseModel
+import com.icare.model.TokenRequest
 import com.icare.service.ClinicService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PostMapping
@@ -21,8 +22,8 @@ class ClinicController {
     }
 
     @PostMapping("/getclinics")
-    fun getClinics (@RequestBody token: String): ResponseModel {
-        return service.getClinics(token)
+    fun getClinics (@RequestBody request: TokenRequest): ResponseModel {
+        return service.getClinics(request.token)
     }
 
 }
