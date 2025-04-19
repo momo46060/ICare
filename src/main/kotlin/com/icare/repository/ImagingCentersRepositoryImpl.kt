@@ -1,5 +1,6 @@
 package com.icare.repository
 
+import com.icare.model.ClinicModel
 import com.icare.model.ImagingCentersModel
 import com.icare.utils.getUid
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,6 +31,22 @@ class ImagingCentersRepositoryImpl: ImagingCentersRepositry {
  """.trimIndent()
                 iCareJdbcTemplate.update(sqlMerge)
         return 0
+    }
+
+    override fun getImagingCenters(): List<ImagingCentersModel> {
+        val sql="""
+            select *  from Lab_Imaging_Centers
+        """.trimIndent()
+        return iCareJdbcTemplate.query(sql)  { rs, _ ->
+            ImagingCentersModel(
+                CenterID = rs.getInt("CenterID"),
+                CenterName = rs.getString("CenterName"),
+                Phone = rs.getString("Phone"),
+                address = rs.getString("address"),
+                type = rs.getInt("type")
+
+            )
+        }
     }
 
 }
