@@ -28,7 +28,7 @@ class ImagingCentersServiceImpl: ImagingCentersService {
             if(getUid(token) == null) {
                 return ResponseModel(status=INVALID_TOKEN)
             }else if (repository.getImagingCenters().isEmpty()){
-                return ResponseModel(status= EMPTY_LIST, data = listOf<ClinicModel>())
+                return ResponseModel(status= EMPTY_LIST, data = listOf<ImagingCentersModel>())
             }else{
                 return ResponseModel(status=OK,data = repository.getImagingCenters())
             }
