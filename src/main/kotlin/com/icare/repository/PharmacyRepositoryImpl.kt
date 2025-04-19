@@ -46,7 +46,6 @@ class PharmacyRepositoryImpl : PharmacyRepository {
     }
 
 
-
     override fun getPharmacy(): List<PharmacyModel> {
         val sql = """
             select * from Pharmacies
@@ -58,7 +57,7 @@ class PharmacyRepositoryImpl : PharmacyRepository {
                 phone = rs.getString("Phone"),
                 pharmacyAddress = rs.getString("PharmacyAddress"),
 
-            )
+                )
         }
     }
 
@@ -71,17 +70,13 @@ class PharmacyRepositoryImpl : PharmacyRepository {
         """.trimIndent()
         return iCareJdbcTemplate.query(sql) { rs, _ ->
             PharmacistsModel(
-
                 token = rs.getString("UserID"),
                 fName = rs.getString("FirstName"),
                 lName = rs.getString("LastName"),
                 email = rs.getString("Email"),
-               phoneNumber = rs.getString("phone"),
-                PharmacyId = rs.getString("Pharmacy_ID"),
-
-
-                )
+                phoneNumber = rs.getString("phone"),
+                pharmacyId = rs.getLong("Pharmacy_ID"),
+            )
         }
     }
-
 }
