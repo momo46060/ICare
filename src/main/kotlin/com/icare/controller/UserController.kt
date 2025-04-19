@@ -3,6 +3,7 @@ package com.icare.controller
 import com.icare.model.CenterStaffModel
 import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
+import com.icare.model.PharmacistsModel
 import com.icare.model.ResponseModel
 import com.icare.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,6 +35,11 @@ class UserController {
     @PostMapping("/centerStaff_register")
     fun centerStaffRegister(@RequestBody centerStaff: CenterStaffModel): ResponseModel {
         return userService.registerCenterStaff(centerStaff)
+    }
+
+    @PostMapping("/pharmacist_register")
+    fun pharmacistRegister(@RequestBody pharmacists: PharmacistsModel): ResponseModel {
+        return userService.registerPharmaciest(pharmacists)
     }
 
 

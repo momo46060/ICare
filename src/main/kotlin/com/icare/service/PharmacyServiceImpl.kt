@@ -1,5 +1,6 @@
 package com.icare.service
 
+import com.icare.model.ClinicModel
 import com.icare.model.PharmacyModel
 import com.icare.model.ResponseModel
 import com.icare.repository.PharmacyRepository
@@ -24,7 +25,7 @@ class PharmacyServiceImpl : PharmacyService {
             if (getUid(token) == null) {
                 return ResponseModel(status=INVALID_TOKEN)
             }else if (repository.getPharmacy().isEmpty()){
-                return ResponseModel(status= EMPTY_LIST)
+                return ResponseModel(status= EMPTY_LIST, data = listOf<ClinicModel>())
             }else{
                 return ResponseModel(status= OK, data = repository.getPharmacy())
             }
@@ -33,5 +34,20 @@ class PharmacyServiceImpl : PharmacyService {
             return ResponseModel(status= FAILED)
         }
 
+    }
+
+    override fun getPharmaciest(token: String): ResponseModel {
+        try {
+            if (getUid(token) == null) {
+                return ResponseModel(status=INVALID_TOKEN)
+            }else if (repository.getPharmaciest().isEmpty()){
+                return ResponseModel(status= EMPTY_LIST, data = listOf<ClinicModel>())
+            }else{
+                return ResponseModel(status= OK, data = repository.getPharmaciest())
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            return ResponseModel(status= FAILED)
+        }
     }
 }

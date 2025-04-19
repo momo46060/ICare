@@ -18,5 +18,6 @@ data class PatientModel(
     val weight: Double = 0.0,
     val phoneNumber: String = "",
     val address: String = "",
-    val nationalId:String=""
+    val nationalId:String="",
+
 )
