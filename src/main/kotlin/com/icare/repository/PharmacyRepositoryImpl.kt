@@ -16,10 +16,9 @@ class PharmacyRepositoryImpl : PharmacyRepository {
 
     override fun addPharmacy(pharmacy: PharmacyModel): Short {
         val sql = """
-        insert into Pharmacies(Phamacy_ID,PhamacyName,Phone,Email,PhamacyAddress,
-            ContactStatus,PharmacyLocation)
+        insert into Pharmacies(Phamacy_ID,PhamacyName,Phone,PhamacyAddress)
         values(${pharmacy.Pharmacy_ID},${pharmacy.Pharmacy_Name},${pharmacy.Phone}, 
-        ${pharmacy.Email},${pharmacy.PharmacyAddress},${pharmacy.ContactStatus},${pharmacy.PhamacyLocation})
+        ${pharmacy.PharmacyAddress})
        """.trimIndent()
         try {
             iCareJdbcTemplate.update(sql)
@@ -40,10 +39,9 @@ class PharmacyRepositoryImpl : PharmacyRepository {
                 Pharmacy_ID = rs.getInt("Pharmacy_ID"),
                 Pharmacy_Name = rs.getString("PharmacyName"),
                 Phone = rs.getString("Phone"),
-                Email = rs.getString("Email"),
+
                 PharmacyAddress = rs.getString("PharmacyAddress"),
-                ContactStatus = rs.getString("ContactStatus"),
-                PhamacyLocation = rs.getString("PharmacyLocation"),
+
             )
         }
     }
