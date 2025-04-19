@@ -1,11 +1,11 @@
 package com.icare.model
 
 data class ImagingCentersModel (
-    val CenterID: Int,
-    val CenterName: String,
-    val Phone: String,
+    val centerID: Int,
+    val centerName: String,
+    val phone: String,
     val address: String,
-    val type : Int
+    val centerType : Int
 
     )
 

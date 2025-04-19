@@ -16,16 +16,17 @@ class ClinicRepositoryImpl : ClinicRepository {
     override fun addClinic(clinic: ClinicModel): Short {
         val sql = """
             MERGE INTO Clinics AS target
-            USING (VALUES (
+            USING (VALUES ('${clinic.clinicID}',
                 '${clinic.clinicName}',
                 '${clinic.clinicType}',
                 '${clinic.phone}',
                 '${clinic.clinicLocaltion}',
                 '${clinic.isOpen}'
-            )) AS source (Clinic_Name, ClinicType, Phone, ClinicLocation, IsOpen)
-            ON target.Clinic_Name = source.Clinic_Name  -- Assuming Clinic_Name is unique
+            )) AS source (ClinicID,Clinic_Name, ClinicType, Phone, ClinicLocation, IsOpen)
+            ON target.ClinicID = source.clinicID  
             WHEN MATCHED THEN
                 UPDATE SET 
+                    Clinic_Name = source.Clinic_Name, 
                     ClinicType = source.ClinicType,
                     Phone = source.Phone,
                     ClinicLocation = source.ClinicLocation,
