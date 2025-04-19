@@ -5,4 +5,5 @@ import com.icare.model.ResponseModel
 
 interface ImagingCentersRepositry {
     fun insertImagingCenter(imagingCenter: ImagingCentersModel): Short
+    fun getImagingCenters(): List<ImagingCentersModel>
 }
