@@ -19,4 +19,9 @@ class ImagingCentersController {
     fun addImagingCenter(@RequestBody imagingCenter: ImagingCentersModel): ResponseModel {
         return service.insertImagingCenter(imagingCenter)
     }
+
+    @PostMapping("/get_imaging_centers")
+    fun getImagingCenters(@RequestBody request: String): ResponseModel {
+        return service.getImagingCenters(request)
+    }
 }
