@@ -15,11 +15,25 @@ class ClinicRepositoryImpl : ClinicRepository {
 
     override fun addClinic(clinic: ClinicModel): Short {
         val sql = """
-            insert into Clinics(Openinig_Hours,Clinic_Name,ClinicType,StaffCount,
-            Phone,ClinicLocation,IsOpen)
-            values ('${clinic.Openinig_Hours}','${clinic.ClinicName}'
-,'${clinic.ClinicType}','${clinic.StaffCount}','${clinic.Phone}','${clinic.ClinicLocaltion}'
-,'${clinic.isOpen}')
+            MERGE INTO Clinics AS target
+            USING (VALUES (
+                '${clinic.clinicName}',
+                '${clinic.clinicType}',
+                '${clinic.phone}',
+                '${clinic.clinicLocaltion}',
+                '${clinic.isOpen}'
+            )) AS source (Clinic_Name, ClinicType, Phone, ClinicLocation, IsOpen)
+            ON target.Clinic_Name = source.Clinic_Name  -- Assuming Clinic_Name is unique
+            WHEN MATCHED THEN
+                UPDATE SET 
+                    ClinicType = source.ClinicType,
+                    Phone = source.Phone,
+                    ClinicLocation = source.ClinicLocation,
+                    IsOpen = source.IsOpen
+            WHEN NOT MATCHED THEN
+                INSERT (Clinic_Name, ClinicType, Phone, ClinicLocation, IsOpen)
+                VALUES (source.Clinic_Name, source.ClinicType, source.Phone, source.ClinicLocation, source.IsOpen);
+
         """.trimIndent()
         try {
             iCareJdbcTemplate.update(sql)
@@ -39,13 +53,11 @@ class ClinicRepositoryImpl : ClinicRepository {
         """.trimIndent()
         return iCareJdbcTemplate.query(sql)  { rs, _ ->
             ClinicModel(
-                ClinicID = rs.getInt("ClinicID"),
-                Openinig_Hours = rs.getInt("Opening_Hours"),
-                ClinicName = rs.getString("Clinic_Name"),
-                ClinicType = rs.getString("ClinicType"),
-                StaffCount = rs.getInt("StaffCount"),
-                Phone = rs.getString("Phone"),
-                ClinicLocaltion = rs.getString("ClinicLocation"),
+                clinicID = rs.getInt("ClinicID"),
+                clinicName = rs.getString("Clinic_Name"),
+                clinicType = rs.getString("ClinicType"),
+                phone = rs.getString("Phone"),
+                clinicLocaltion = rs.getString("ClinicLocation"),
                 isOpen=rs.getBoolean("IsOpen")
             )
         }
