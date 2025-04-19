@@ -3,13 +3,12 @@ package com.icare.model
 
 
 data class ClinicModel (
-    val ClinicID: Int=0,
-    val Openinig_Hours: Int,
-    val ClinicName: String,
-    val StaffCount: Int,
-    val Phone: String,
-    val ClinicType: String,
-    val ClinicLocaltion: String,
+    val clinicID: Int=0,
+    val clinicName: String,
+
+    val phone: String,
+    val clinicType: String,
+    val clinicLocaltion: String,
     val isOpen: Boolean
 )
 
