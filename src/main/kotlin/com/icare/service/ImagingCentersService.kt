@@ -5,5 +5,5 @@ import com.icare.model.ResponseModel
 
 interface ImagingCentersService {
     fun insertImagingCenter(imagingCenter: ImagingCentersModel): ResponseModel
-
+    fun getImagingCenters(token: String): ResponseModel
 }
