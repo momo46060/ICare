@@ -5,7 +5,7 @@ data class ImagingCentersModel (
     val centerName: String,
     val phone: String,
     val address: String,
-    val type : Int
+    val centerType : Int
 
     )
 
