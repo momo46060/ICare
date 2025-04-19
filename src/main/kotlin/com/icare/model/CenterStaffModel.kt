@@ -3,16 +3,12 @@ package com.icare.model
 
 data class CenterStaffModel (
     val token:String = "",
-    val StaffID:String="",
-    val LabCenterID :Int=0,
-    val RoleID :Int=0,
-    val FirstName:String="",
-    val LastName:String="",
-    val Email:String="",
-    val BirthDate:String="",
-    val Gender:String="",
-    val IsActive:Boolean=false,
+    val staffID:String="",
+    val labCenterID :Int=0,
+    val firstName:String="",
+    val lastName:String="",
+    val email:String="",
+    val isActive:Boolean=false,
     val phoneNumber: String = "",
-    val address: String = "",
-    val nationalId:String=""
-)
+    val profilePicture: String = "",
+    )
