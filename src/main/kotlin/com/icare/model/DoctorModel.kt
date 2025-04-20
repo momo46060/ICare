@@ -3,8 +3,8 @@ package com.icare.model
 data class DoctorModel(
     val token:String="",
     val doctorID:String="",
-    val fName:String="",
-    val lName:String="",
+    val fname:String="",
+    val lname:String="",
     val email:String="",
     val isActive:Boolean=true,
     val specialization:String="",
