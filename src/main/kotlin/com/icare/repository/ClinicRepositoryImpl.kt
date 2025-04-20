@@ -78,8 +78,8 @@ class ClinicRepositoryImpl : ClinicRepository {
 
             DoctorModel(
                 doctorID = rs.getString("DoctorID"),
-                fName =  rs.getString("FirstName"),
-                lName = rs.getString("LastName"),
+                fname =  rs.getString("FirstName"),
+                lname = rs.getString("LastName"),
                 email = rs.getString("Email"),
                 isActive = rs.getBoolean("IsActive"),
                 specialization = rs.getString("Specialization"),
