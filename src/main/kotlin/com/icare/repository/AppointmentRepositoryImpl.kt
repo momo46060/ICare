@@ -56,25 +56,26 @@ class AppointmentRepositoryImpl: AppointmentsRepository {
             SELECT a.PatientId       as patientId,
                    a.DoctorId        as doctorId,
                    a.AppointmentDate as appointmentTime,
-                   a.StatusId        as status,
-                   a.AppointmentID              as appointmentId,
-                   a.StatusId        as statusId,
-                   d.Specialization       as doctorSpecialty,
+                  
+                   a.AppointmentID   as appointmentId,
+                   a.StatusID        as statusId,
+                   d.Specialization  as doctorSpecialty,
                    up.FirstName+' '+up.LastName            as patientName,
                    ud.FirstName+' '+ud.LastName            as doctorName
             FROM Appointments a
-                     INNER JOIN Doctors d ON a.PatientId = d.DoctorID
+                     INNER JOIN Doctors d ON a.DoctorID = d.DoctorID
                      INNER JOIN Users up ON a.PatientId = up.UserID
                      INNER JOIN Users ud ON a.DoctorId = ud.UserID
-            where patientId = ${uid} ;
+            where a.patientId = '${uid}';
         """.trimIndent()
         try {
             return iCareJdbcTemplate.query(sql) { rs, _ ->
                 Appointment(
-                    token =rs.getString("patientId"),
+
+                    patientId=rs.getString("patientId"),
                     doctorId=rs.getString("doctorId"),
-                    appointmentTime=rs.getLong("appointmentTime"),
-                    status=rs.getInt("status"),
+                    appointmentTime=rs.getDate("appointmentTime").time,
+
                     appointmentId=rs.getLong("appointmentId"),
                     statusId=rs.getShort("statusId"),
                     doctorSpecialty=rs.getString("doctorSpecialty"),
@@ -96,14 +97,14 @@ class AppointmentRepositoryImpl: AppointmentsRepository {
             SELECT a.PatientId       as patientId,
                    a.DoctorId        as doctorId,
                    a.AppointmentDate as appointmentTime,
-                   a.StatusId        as status,
+                  
                    a.AppointmentID              as appointmentId,
-                   a.StatusId        as statusId,
+                   a.StatusID        as statusId,
                    d.Specialization       as doctorSpecialty,
                    up.FirstName+' '+up.LastName            as patientName,
                    ud.FirstName+' '+ud.LastName            as doctorName
             FROM Appointments a
-                     INNER JOIN Doctors d ON a.PatientId = d.DoctorID
+                     INNER JOIN Doctors d ON a.DoctorID = d.DoctorID
                      INNER JOIN Users up ON a.PatientId = up.UserID
                      INNER JOIN Users ud ON a.DoctorId = ud.UserID
             where status = ${status} ;
@@ -114,7 +115,7 @@ class AppointmentRepositoryImpl: AppointmentsRepository {
                     token =rs.getString("patientId"),
                     doctorId=rs.getString("doctorId"),
                     appointmentTime=rs.getLong("appointmentTime"),
-                    status=rs.getInt("status"),
+
                     appointmentId=rs.getLong("appointmentId"),
                     statusId=rs.getShort("statusId"),
                     doctorSpecialty=rs.getString("doctorSpecialty"),
