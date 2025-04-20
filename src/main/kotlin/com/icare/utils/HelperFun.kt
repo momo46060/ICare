@@ -18,3 +18,18 @@ fun getUid(token: String): String? {
         null
     }
 }
+
+fun getImage(uid: String): String? {
+    return try {
+        val auth: FirebaseAuth = FirebaseAuth.getInstance()
+        auth.getUser(uid)?.photoUrl.toString()
+    } catch (e: FirebaseAuthException) {
+        // Log the error or handle it as needed
+        println("Failed to verify ID token: ${e.message}")
+        null
+    } catch (e: Exception) {
+        // Handle any other exceptions
+        println("An unexpected error occurred: ${e.message}")
+        null
+    }
+}
