@@ -75,53 +75,109 @@ class UserRepositoryImpl : UserRepository {
         }
     }
 
-    override fun registerDoctor(doctor: DoctorModel): Short {
+    /*override fun registerDoctor(doctor: DoctorModel): Short {
         if (getUid(doctor.token) == null) {
             return INVALID_TOKEN
         } else {
             val deleteUser = """
-                delete from Users where UserID = '${getUid(doctor.token)}';
-            """.trimIndent()
-            val meargsql = """
-                MERGE INTO Doctor AS target
-USING (VALUES ('${getUid(doctor.token)}', '${doctor.specialization}', '${doctor.fromTime}','${doctor.toTime}', '${doctor.clinicId}'))
-    AS source (DoctorID, Specialization, ClinicID,from_time,to_time)
-ON target.DoctorID = source.DoctorID
-WHEN MATCHED THEN
-    UPDATE SET
-        target.Specialization = source.Specialization,
-        target.ClinicID = source.ClinicID,
-        target.fromTime = source.from_time,
-        target.toTime = source.to_time,
-WHEN NOT MATCHED BY TARGET THEN
-    INSERT (DoctorID, Specialization , ClinicID , from_time , to_time)
-    VALUES (source.DoctorID, source.Specialization, source.ClinicID , source.from_time, source.to_time);
-            """.trimIndent()
+            DELETE FROM Users WHERE UserID = '${getUid(doctor.token)}';
+        """.trimIndent()
+
+            val mergeSql = """
+            MERGE INTO Doctors AS target
+            USING (VALUES ('${getUid(doctor.token)}', '${doctor.specialization}', '${doctor.fromTime}', '${doctor.toTime}', '${doctor.clinicId}'))
+                AS source (DoctorID, Specialization, ClinicID, from_time, to_time)
+            ON target.DoctorID = source.DoctorID
+            WHEN MATCHED THEN
+                UPDATE SET
+                    target.Specialization = source.Specialization,
+                    target.ClinicID = source.ClinicID,
+                    target.from_time = source.from_time,
+                    target.to_time = source.to_time
+            WHEN NOT MATCHED BY TARGET THEN
+                INSERT (DoctorID, Specialization, ClinicID, from_time, to_time)
+                VALUES (source.DoctorID, source.Specialization, source.ClinicID, source.from_time, source.to_time);
+        """.trimIndent()
+
             try {
-                if (insertUser(
-                        Users(
-                            getUid(doctor.token)!!,
-                            fName = doctor.fName,
-                            lName = doctor.lName,
-                            email = doctor.email,
-                            isActive = doctor.isActive,
-                            phoneNumber = doctor.phoneNumber,
-                            roleID = 2
-                        )
+                val userId = createUser(doctor.email, "123456", "${doctor.fname} ${doctor.lname}")
+
+                // Insert user into Users table
+                insertUser(
+                    Users(
+                        userId = userId,
+                        fName = doctor.fname,
+                        lName = doctor.lname,
+                        email = doctor.email,
+                        isActive = doctor.isActive,
+                        phoneNumber = doctor.phoneNumber,
+                        roleID = 2 // Role 2 for doctor
                     )
-                ) {
-                    iCareJdbcTemplate.update(meargsql)
-                    return OK
-                } else {
-                    iCareJdbcTemplate.update(deleteUser)
-                    return DUPLICATE_USER
-                }
+                )
+
+                // Now insert/update doctor details in Doctors table
+                iCareJdbcTemplate.update(mergeSql)
+                return OK
+
             } catch (e: Exception) {
                 println(e.stackTrace)
                 println(e.message)
                 iCareJdbcTemplate.update(deleteUser)
                 return FAILED
             }
+        }
+    }*/
+
+    override fun registerDoctor(doctor: DoctorModel): Short {
+        val uid = getUid(doctor.token) ?: return INVALID_TOKEN
+
+        return try {
+            // Step 1: إنشاء user جديد
+            val userId = createUser(doctor.email, "123456", "${doctor.fname} ${doctor.lname}",uid =doctor.doctorID)
+
+            // Step 2: إدراج بيانات المستخدم في جدول Users
+            insertUser(
+                Users(
+                    userId = userId,
+                    fName = doctor.fname,
+                    lName = doctor.lname,
+                    email = doctor.email,
+                    isActive = doctor.isActive,
+                    phoneNumber = doctor.phoneNumber,
+                    roleID = 2 // دكتور
+                )
+            )
+
+            // Step 3: MERGE into Doctors table
+            val mergeSql = """
+            MERGE INTO Doctors AS target
+            USING (VALUES (?, ?, ?, ?, ?))
+                AS source (DoctorID, Specialization, ClinicID, from_time, to_time)
+            ON target.DoctorID = source.DoctorID
+            WHEN MATCHED THEN
+                UPDATE SET
+                    target.Specialization = source.Specialization,
+                    target.ClinicID = source.ClinicID,
+                    target.from_time = source.from_time,
+                    target.to_time = source.to_time
+            WHEN NOT MATCHED BY TARGET THEN
+                INSERT (DoctorID, Specialization, ClinicID, from_time, to_time)
+                VALUES (source.DoctorID, source.Specialization, source.ClinicID, source.from_time, source.to_time);
+        """.trimIndent()
+
+            iCareJdbcTemplate.update(
+                mergeSql,
+                userId,
+                doctor.specialization,
+                doctor.clinicId,
+                doctor.fromTime,
+                doctor.toTime
+            )
+
+            OK
+        } catch (e: Exception) {
+            e.printStackTrace()
+            FAILED
         }
     }
 
