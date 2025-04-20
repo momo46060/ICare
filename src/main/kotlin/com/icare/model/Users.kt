@@ -8,7 +8,7 @@ data class Users (
     val lName:String="",
     val email:String="",
     val birthDate:String="",
-    val gender:String="",
+    val gender:String="M",
     val isActive:Boolean=true,
     val phoneNumber: String = "",
     val address: String = "",
