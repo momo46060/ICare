@@ -46,7 +46,7 @@ class UserRepositoryImpl : UserRepository {
                 if (insertUser(
                         Users(
                             getUid(patient.token)!!,
-                            1,
+                            6,
                             patient.fName,
                             patient.lName,
                             patient.email,
@@ -106,6 +106,7 @@ WHEN NOT MATCHED BY TARGET THEN
                             email = doctor.email,
                             isActive = doctor.isActive,
                             phoneNumber = doctor.phoneNumber,
+                            roleID = 2
                         )
                     )
                 ) {
@@ -198,6 +199,7 @@ WHEN NOT MATCHED BY TARGET THEN
                             email = centerStaff.email,
                             isActive = centerStaff.isActive,
                             phoneNumber = centerStaff.phoneNumber,
+                            roleID = 5
                         )
                     )
                 ) {
@@ -246,6 +248,7 @@ WHEN NOT MATCHED BY TARGET THEN
                             email = pharmaciests.email,
                             isActive = pharmaciests.isActive,
                             phoneNumber = pharmaciests.phoneNumber,
+                            roleID = 4
                         )
                     )
                 ) {
