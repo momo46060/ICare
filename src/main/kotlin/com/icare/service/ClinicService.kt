@@ -9,4 +9,5 @@ interface ClinicService {
 
     fun addClinic(clinic: ClinicModel): ResponseModel
     fun getClinics(token: String): ResponseModel
+    fun getDoctors(token: String): ResponseModel
 }

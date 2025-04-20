@@ -1,6 +1,7 @@
 package com.icare.repository
 
 import com.icare.model.ClinicModel
+import com.icare.model.DoctorModel
 import com.icare.utils.FAILED
 import com.icare.utils.OK
 import org.springframework.beans.factory.annotation.Autowired
@@ -61,6 +62,35 @@ class ClinicRepositoryImpl : ClinicRepository {
                 clinicLocaltion = rs.getString("ClinicLocation"),
                 isOpen=rs.getBoolean("IsOpen")
             )
+        }
+    }
+
+    override fun getDoctors(): List<DoctorModel> {
+        val sql="""
+            select D.DoctorID,U.FirstName,U.LastName,U.Email,U.IsActive,D.Specialization,
+                   D.from_time,D.to_time,D.ClinicID,U.phone
+            from Doctors D
+            join Users U
+            on D.DoctorID = U.UserID
+        """.trimIndent()
+
+        return iCareJdbcTemplate.query(sql){rs, _ ->
+
+            DoctorModel(
+                doctorID = rs.getString("DoctorID"),
+                fName =  rs.getString("FirstName"),
+                lName = rs.getString("LastName"),
+                email = rs.getString("Email"),
+                isActive = rs.getBoolean("IsActive"),
+                specialization = rs.getString("Specialization"),
+                fromTime = rs.getLong("from_time"),
+                toTime = rs.getLong("to_time"),
+                clinicId = rs.getString("ClinicID"),
+                phoneNumber = rs.getString("phone")
+
+
+            )
+
         }
     }
 

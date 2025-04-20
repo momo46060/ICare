@@ -1,6 +1,7 @@
 package com.icare.service
 
 import com.icare.model.ClinicModel
+import com.icare.model.DoctorModel
 import com.icare.model.ResponseModel
 import com.icare.repository.ClinicRepository
 import com.icare.utils.EMPTY_LIST
@@ -26,7 +27,7 @@ class ClinicServiceImpl : ClinicService{
         val list = listOf<ClinicModel>()
         try {
             if(getUid(token) == null) {
-                return ResponseModel(status=INVALID_TOKEN)
+                return ResponseModel(status=INVALID_TOKEN, data = listOf<ClinicModel>())
             }else if (repository.getClinics().isEmpty()){
                 return ResponseModel(status= EMPTY_LIST, data = listOf<ClinicModel>())
             }else{
@@ -34,9 +35,25 @@ class ClinicServiceImpl : ClinicService{
             }
         }catch (e:Exception){
             e.printStackTrace()
-            return ResponseModel(status= FAILED)
+            return ResponseModel(status= FAILED, data = listOf<ClinicModel>())
         }
 
 
+    }
+
+    override fun getDoctors(token: String): ResponseModel {
+
+        try {
+            if(getUid(token) == null) {
+                return ResponseModel(status=INVALID_TOKEN, data = listOf<DoctorModel>())
+            }else if (repository.getDoctors().isEmpty()){
+                return ResponseModel(status= EMPTY_LIST, data = listOf<DoctorModel>())
+            }else{
+                return ResponseModel(status=OK,data = repository.getDoctors())
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            return ResponseModel(status= FAILED, data = listOf<DoctorModel>())
+        }
     }
 }

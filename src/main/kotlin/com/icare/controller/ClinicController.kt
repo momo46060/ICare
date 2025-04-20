@@ -26,4 +26,9 @@ class ClinicController {
         return service.getClinics(request.token)
     }
 
+    @PostMapping("/getdoctors")
+    fun getDoctors (@RequestBody request: TokenRequest): ResponseModel {
+        return service.getDoctors(request.token)
+    }
+
 }
