@@ -22,23 +22,22 @@ class UserController {
     lateinit var userService: UserService
 
 
-    @PostMapping("/patient_register")
+    @PostMapping("/patientRegister")
     fun patientRegister(@RequestBody patient: PatientModel): ResponseModel {
         return userService.registerPatient(patient)
     }
 
-    @PostMapping("/doctor_register")
+    @PostMapping("/doctorRegister")
     fun DoctorRegister(@RequestBody doctor: DoctorModel): ResponseModel {
-        println(doctor)
         return userService.registerDoctor(doctor)
     }
 
-    @PostMapping("/centerStaff_register")
+    @PostMapping("/centerStaffRegister")
     fun centerStaffRegister(@RequestBody centerStaff: CenterStaffModel): ResponseModel {
         return userService.registerCenterStaff(centerStaff)
     }
 
-    @PostMapping("/pharmacist_register")
+    @PostMapping("/pharmacistRegister")
     fun pharmacistRegister(@RequestBody pharmacists: PharmacistsModel): ResponseModel {
         return userService.registerPharmaciest(pharmacists)
     }
