@@ -7,10 +7,13 @@ import com.icare.model.ResponseModel
 import com.icare.model.ClinicModel
 import com.icare.model.PharmacistsModel
 import com.icare.model.PharmacyModel
+import com.icare.model.TokenRequest
 import com.icare.model.Users
 
 
 interface UserRepository {
+
+    fun getLoginInfo(request: TokenRequest): Users?
 
     fun registerPatient(patient: PatientModel): Short
     fun registerDoctor(doctor: DoctorModel): Short
