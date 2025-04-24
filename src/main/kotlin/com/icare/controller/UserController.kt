@@ -5,6 +5,7 @@ import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.PharmacistsModel
 import com.icare.model.ResponseModel
+import com.icare.model.TokenRequest
 import com.icare.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PostMapping
@@ -21,6 +22,9 @@ class UserController {
     @Autowired
     lateinit var userService: UserService
 
+    @PostMapping("/loginInfo")
+    fun getLoginInfo(@RequestBody request: TokenRequest): ResponseModel =
+        userService.getLoginInfo(request)
 
     @PostMapping("/patientRegister")
     fun patientRegister(@RequestBody patient: PatientModel): ResponseModel {
