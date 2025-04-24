@@ -166,12 +166,12 @@ class UserRepositoryImpl : UserRepository {
                 UPDATE SET
                     target.Specialization = source.Specialization,
                     target.ClinicID = source.ClinicID,
-                    target.from_time = source.from_time,
-                    target.to_time = source.to_time,
-                    target.rating = source.rating,
-                    target.price = source.price
+                    target.From_Time = source.from_time,
+                    target.To_Time = source.to_time,
+                    target.Rating = source.rating,
+                    target.Price = source.price
             WHEN NOT MATCHED BY TARGET THEN
-                INSERT (DoctorID, Specialization, ClinicID, from_time, to_time,rating,price))
+                INSERT (DoctorID, Specialization, ClinicID, From_Time, To_Time,Rating,Price)
                 VALUES (source.DoctorID, source.Specialization, source.ClinicID, source.from_time, source.to_time,source.rating,source.price);
         """.trimIndent()
 
