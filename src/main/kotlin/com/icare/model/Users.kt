@@ -7,11 +7,10 @@ data class Users (
     val fName:String="",
     val lName:String="",
     val email:String="",
-    val birthDate:String="",
+    val birthDate:Long=0,
     val gender:String="M",
     val isActive:Boolean=true,
     val phoneNumber: String = "",
     val address: String = "",
     val nationalId:String=""
-
     )
