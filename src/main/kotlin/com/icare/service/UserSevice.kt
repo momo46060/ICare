@@ -29,8 +29,8 @@ class UserServiceImpl : UserService {
         return getUid(request.token)?.let { uid ->
             repository.getLoginInfo(uid)?.let { users ->
                 ResponseModel(status = OK, data = users, message = "")
-            } ?: ResponseModel(status = INVALID_USER)
-        } ?: ResponseModel(status = INVALID_TOKEN)
+            } ?: ResponseModel(status = INVALID_USER, data = Users())
+        } ?: ResponseModel(status = INVALID_TOKEN, data = Users())
     }
 
     override fun registerPatient(patient: PatientModel): ResponseModel {
