@@ -9,7 +9,7 @@ data class PatientModel(
     val lName: String = "",
     val email: String = "",
     val birthDate: Long = 0,
-    val gender: String = "",
+    val gender: String = "M",
     val isActive: Boolean = true,
     val chronicDiseases: String = "",
     val currentMedications: String = "",
