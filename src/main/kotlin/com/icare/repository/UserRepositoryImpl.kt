@@ -19,25 +19,25 @@ class UserRepositoryImpl : UserRepository {
 
     @Autowired
     lateinit var iCareJdbcTemplate: JdbcTemplate
-    override fun getLoginInfo(request: TokenRequest): Users? {
+    override fun getLoginInfo(uid: String): Users? {
         val userSql = """
        SELECT [RoleID] ,[FirstName] ,[LastName] ,[Email] ,[BirthDate] ,[Gender] ,[IsActive] ,[phone]
-        ,[Address] ,[national_id] FROM [Users] WHERE [USERID] = ?
+        ,[Address] ,[national_id] FROM [Users] WHERE [USERID] = '$uid'
         """.trimIndent()
-       return runCatching {
-           iCareJdbcTemplate.queryForObject(userSql) { rs, _ ->
+        return runCatching {
+            iCareJdbcTemplate.queryForObject(userSql) { rs, _ ->
                 Users(
-                   roleID = rs.getInt("RoleID"),
-                   fName = rs.getString("FirstName"),
-                   lName = rs.getString("LastName"),
-                   email = rs.getString("Email"),
-                   birthDate = rs.getDate("BirthDate").time,
-                   gender = rs.getString("Gender"),
-                   isActive = rs.getBoolean("IsActive"),
-                   phoneNumber = rs.getString("phone"),
-                   address = rs.getString("Address"),
-                   nationalId = rs.getString("national_id"),
-               )
+                    roleID = rs.getInt("RoleID"),
+                    fName = rs.getString("FirstName"),
+                    lName = rs.getString("LastName"),
+                    email = rs.getString("Email"),
+                    birthDate = rs.getDate("BirthDate").time,
+                    gender = rs.getString("Gender"),
+                    isActive = rs.getBoolean("IsActive"),
+                    phoneNumber = rs.getString("phone"),
+                    address = rs.getString("Address"),
+                    nationalId = rs.getString("national_id"),
+                )
             }
         }.getOrNull()
     }

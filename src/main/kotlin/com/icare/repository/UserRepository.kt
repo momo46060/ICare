@@ -13,7 +13,7 @@ import com.icare.model.Users
 
 interface UserRepository {
 
-    fun getLoginInfo(request: TokenRequest): Users?
+    fun getLoginInfo(uid:String): Users?
 
     fun registerPatient(patient: PatientModel): Short
     fun registerDoctor(doctor: DoctorModel): Short
