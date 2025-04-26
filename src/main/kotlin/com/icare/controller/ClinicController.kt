@@ -18,21 +18,27 @@ class ClinicController {
     lateinit var service: ClinicService
 
     @PostMapping("/addClinic")
-    fun addClinic(@RequestBody clinicModel:  ClinicModel): ResponseModel {
+    fun addClinic(@RequestBody clinicModel: ClinicModel): ResponseModel {
         println(clinicModel)
         return service.addClinic(clinicModel)
     }
 
     @PostMapping("/getClinics")
-    fun getClinics (@RequestBody request: TokenRequest): ResponseModel {
+    fun getClinics(@RequestBody request: TokenRequest): ResponseModel {
         return service.getClinics(request.token)
     }
 
+    @PostMapping("/doctorSchedule")
+    fun getDoctorSchedule(@RequestBody request: TokenRequest): ResponseModel {
+        return service.getDoctorSchedule(request.token)
+    }
+
     @PostMapping("/getDoctors")
-    fun getDoctors (@RequestBody request: TokenRequest): ResponseModel {
+    fun getDoctors(@RequestBody request: TokenRequest): ResponseModel {
         println(request)
         return service.getDoctors(request.token)
     }
+
     @PostMapping("/consultation")
     fun consultation(@RequestBody consultationModel: ConsultationModel): ResponseModel {
         return service.Consultation(consultationModel)
@@ -42,10 +48,12 @@ class ClinicController {
     fun getConsultationsByPrescriptionStatus(@RequestBody request: TokenRequest): ResponseModel {
         return service.getConsultationsByPrescriptionStatus(request)
     }
+
     @PostMapping("/getConsultationsByLabTestStatus")
     fun getConsultationsByLabTestStatus(@RequestBody request: TokenRequest): ResponseModel {
         return service.getConsultationsByLabTestStatus(request)
     }
+
     @PostMapping("/getConsultationsByImaginingTestStatus")
     fun getConsultationsByImaginingTestStatus(@RequestBody request: TokenRequest): ResponseModel {
         return service.getConsultationsByImaginingTestStatus(request)
