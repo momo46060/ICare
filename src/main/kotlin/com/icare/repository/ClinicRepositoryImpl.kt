@@ -124,7 +124,7 @@ class ClinicRepositoryImpl : ClinicRepository {
                      inner join Users P on P.UserID = A.PatientID
                      inner join Users D on D.UserID = A.DoctorID
                      inner join Doctors D2 on D2.DoctorID = A.DoctorID
-            where A.DoctorID = '$uid'
+            where A.DoctorID = '$uid' AND A.StatusID < 3
         """.trimIndent()
 
         val appointments =
