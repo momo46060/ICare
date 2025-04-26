@@ -4,13 +4,13 @@ import com.google.type.PhoneNumber
 import javax.naming.RefAddr
 
 data class PatientModel(
-    val token:String="",
-    val fName:String="",
-    val lName:String="",
-    val email:String="",
-    val birthDate: String = "",
-    val gender:String="",
-    val isActive:Boolean=true,
+    val token: String = "",
+    val fName: String = "",
+    val lName: String = "",
+    val email: String = "",
+    val birthDate: Long = 0,
+    val gender: String = "M",
+    val isActive: Boolean = true,
     val chronicDiseases: String = "",
     val currentMedications: String = "",
     val allergies: String = "",
@@ -18,6 +18,6 @@ data class PatientModel(
     val weight: Double = 0.0,
     val phoneNumber: String = "",
     val address: String = "",
-    val nationalId:String="",
+    val nationalId: String = "",
 
-)
+    )

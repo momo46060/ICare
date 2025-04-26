@@ -17,18 +17,20 @@ class ClinicController {
     @Autowired
     lateinit var service: ClinicService
 
-    @PostMapping("/add_clinic")
+    @PostMapping("/addClinic")
     fun addClinic(@RequestBody clinicModel:  ClinicModel): ResponseModel {
+        println(clinicModel)
         return service.addClinic(clinicModel)
     }
 
-    @PostMapping("/getclinics")
+    @PostMapping("/getClinics")
     fun getClinics (@RequestBody request: TokenRequest): ResponseModel {
         return service.getClinics(request.token)
     }
 
-    @PostMapping("/getdoctors")
+    @PostMapping("/getDoctors")
     fun getDoctors (@RequestBody request: TokenRequest): ResponseModel {
+        println(request)
         return service.getDoctors(request.token)
     }
     @PostMapping("/consultation")
