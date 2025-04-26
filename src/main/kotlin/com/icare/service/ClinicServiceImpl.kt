@@ -73,7 +73,7 @@ class ClinicServiceImpl : ClinicService {
     override fun Consultation(consultationModel: ConsultationModel): ResponseModel {
         try {
             if (getUid(consultationModel.token) == null) {
-                return ResponseModel(status = INVALID_TOKEN, data = listOf<DoctorModel>())
+                return ResponseModel(status = INVALID_TOKEN, data = null)
             } else {
                 return ResponseModel(
                     status = repository.consultation(consultationModel),
