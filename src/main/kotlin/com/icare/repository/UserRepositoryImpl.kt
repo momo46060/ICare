@@ -5,11 +5,13 @@ import com.icare.model.DoctorModel
 import com.icare.model.PatientModel
 import com.icare.model.PharmacistsModel
 import com.icare.model.ResponseModel
+import com.icare.model.TokenRequest
 import com.icare.model.Users
 import com.icare.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import kotlin.Int
 
 
 @Repository
@@ -17,6 +19,28 @@ class UserRepositoryImpl : UserRepository {
 
     @Autowired
     lateinit var iCareJdbcTemplate: JdbcTemplate
+    override fun getLoginInfo(uid: String): Users? {
+        val userSql = """
+       SELECT [RoleID] ,[FirstName] ,[LastName] ,[Email] ,[BirthDate] ,[Gender] ,[IsActive] ,[phone]
+        ,[Address] ,[national_id] FROM [Users] WHERE [USERID] = '$uid'
+        """.trimIndent()
+        return runCatching {
+            iCareJdbcTemplate.queryForObject(userSql) { rs, _ ->
+                Users(
+                    roleID = rs.getInt("RoleID"),
+                    fName = rs.getString("FirstName"),
+                    lName = rs.getString("LastName"),
+                    email = rs.getString("Email"),
+                    birthDate = rs.getDate("BirthDate").time,
+                    gender = rs.getString("Gender"),
+                    isActive = rs.getBoolean("IsActive"),
+                    phoneNumber = rs.getString("phone"),
+                    address = rs.getString("Address"),
+                    nationalId = rs.getString("national_id"),
+                )
+            }
+        }.getOrNull()
+    }
 
     override fun registerPatient(patient: PatientModel): Short {
         if (getUid(patient.token) == null) {
@@ -129,40 +153,51 @@ class UserRepositoryImpl : UserRepository {
     }*/
 
     override fun registerDoctor(doctor: DoctorModel): Short {
-        val uid = getUid(doctor.token) ?: return INVALID_TOKEN
 
         return try {
-            // Step 1: إنشاء user جديد
-            val userId = createUser(doctor.email, "123456", "${doctor.fname} ${doctor.lname}",uid =doctor.doctorID)
+//            val uid = getUid(doctor.token) ?: return INVALID_TOKEN
+            println("**************************")
+//            println(uid)
+            println("**************************")  // Step 1: إنشاء user جديد
+//            val userId = createUser(doctor.email, "123456", "${doctor.fname} ${doctor.lname}",uid =doctor.doctorID)
+            val userId =
+                createOrUpdateFirebaseUser(doctor.email, "123456", "${doctor.fname} ${doctor.lname}", doctor.doctorID)
 
             // Step 2: إدراج بيانات المستخدم في جدول Users
-            insertUser(
-                Users(
-                    userId = userId,
-                    fName = doctor.fname,
-                    lName = doctor.lname,
-                    email = doctor.email,
-                    isActive = doctor.isActive,
-                    phoneNumber = doctor.phoneNumber,
-                    roleID = 2 // دكتور
+            println("**************************")
+            println(userId)
+            if (userId != null) {
+                insertUser(
+                    Users(
+                        userId = userId,
+                        fName = doctor.fname,
+                        lName = doctor.lname,
+                        email = doctor.email,
+                        isActive = doctor.isActive,
+                        phoneNumber = doctor.phoneNumber,
+                        roleID = 2 // دكتور
+                    )
                 )
-            )
+            }
+
 
             // Step 3: MERGE into Doctors table
             val mergeSql = """
             MERGE INTO Doctors AS target
-            USING (VALUES (?, ?, ?, ?, ?))
-                AS source (DoctorID, Specialization, ClinicID, from_time, to_time)
+            USING (VALUES (?, ?, ?, ?, ? , ? , ?))
+                AS source (DoctorID, Specialization, ClinicID, from_time, to_time,rating,price)
             ON target.DoctorID = source.DoctorID
             WHEN MATCHED THEN
                 UPDATE SET
                     target.Specialization = source.Specialization,
                     target.ClinicID = source.ClinicID,
-                    target.from_time = source.from_time,
-                    target.to_time = source.to_time
+                    target.From_Time = source.from_time,
+                    target.To_Time = source.to_time,
+                    target.Rating = source.rating,
+                    target.Price = source.price
             WHEN NOT MATCHED BY TARGET THEN
-                INSERT (DoctorID, Specialization, ClinicID, from_time, to_time)
-                VALUES (source.DoctorID, source.Specialization, source.ClinicID, source.from_time, source.to_time);
+                INSERT (DoctorID, Specialization, ClinicID, From_Time, To_Time,Rating,Price)
+                VALUES (source.DoctorID, source.Specialization, source.ClinicID, source.from_time, source.to_time,source.rating,source.price);
         """.trimIndent()
 
             iCareJdbcTemplate.update(
@@ -171,10 +206,13 @@ class UserRepositoryImpl : UserRepository {
                 doctor.specialization,
                 doctor.clinicId,
                 doctor.fromTime,
-                doctor.toTime
+                doctor.toTime,
+                doctor.rating,
+                doctor.price,
             )
 
             OK
+
         } catch (e: Exception) {
             e.printStackTrace()
             FAILED

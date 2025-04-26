@@ -5,6 +5,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.UserRecord
 
+data class EmptyUIdException(override val message: String?) : Exception()
+
+
 fun getUid(token: String): String? {
     return try {
         val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -36,51 +39,54 @@ fun getImage(uid: String): String? {
     }
 }
 
-/*
-fun createUser(email: String, password: String, name: String): String {
-    val request = UserRecord.CreateRequest()
-        .setEmail(email)
-        .setPassword(password)
-        .setDisplayName(name)
-        .setEmailVerified(false)
-        .setDisabled(false)
 
-    val userRecord = FirebaseAuth.getInstance().createUser(request)
-    return userRecord.uid
-}*/
-/*fun createUser(email: String, password: String, name: String): String {
+fun createOrUpdateFirebaseUser(email: String, password: String, displayName: String, uid: String): String? {
     val auth = FirebaseAuth.getInstance()
 
     return try {
-        val request = UserRecord.CreateRequest()
+        if (uid.isEmpty()) throw EmptyUIdException("Doctor ID is empty")
+        // Try to get the user by email
+        val existingUser = auth.getUser(uid)
+
+        // If found, update their info
+        val updateRequest = UserRecord.UpdateRequest(existingUser.uid)
             .setEmail(email)
-            .setPassword(password)
-            .setDisplayName(name)
-            .setEmailVerified(false)
-            .setDisabled(false)
+//            .setPassword(password)
+            .setDisplayName(displayName)
 
-        val userRecord = auth.createUser(request)
-        userRecord.uid
-    } catch (e: FirebaseAuthException) {
-        // الصح نستخدم authErrorCode مش errorCode
-        if (e.authErrorCode == AuthErrorCode.EMAIL_ALREADY_EXISTS) {
-            val existingUser = auth.getUserByEmail(email)
+        auth.updateUser(updateRequest)
 
-            val updateRequest = UserRecord.UpdateRequest(existingUser.uid)
-                .setDisplayName(name)
-                .setPassword(password) // ممكن تشيله لو مش عايز تحدث الباسورد
-                .setEmailVerified(false)
-                .setDisabled(false)
+        println("Updated existing user: ${existingUser.uid}")
+        existingUser.uid
 
-            val updatedUser = auth.updateUser(updateRequest)
-            updatedUser.uid
-        } else {
-            throw e
+    } catch (ex: Exception) {
+        when (ex) {
+            is FirebaseAuthException, is EmptyUIdException -> {
+//        if (ex.errorCode.equals( "user-not-found")) {
+                // User doesn't exist, so create a new one
+                val createRequest = UserRecord.CreateRequest()
+                    .setEmail(email)
+                    .setPassword(password)
+                    .setDisplayName(displayName)
+                    .setEmailVerified(false)
+                    .setDisabled(false)
+
+                val newUser = auth.createUser(createRequest)
+                println("Created new user: ${newUser.uid}")
+                newUser.uid
+//        } else {
+//            println("Firebase error: ${e.errorCode} - ${e.message}")
+//            null
+//        }
+            }
+
+            else -> throw ex
         }
     }
-}*/
+}
 
-fun createUser(email: String, password: String, name: String,uid: String): String {
+
+fun createUser(email: String, password: String, name: String, uid: String): String {
     val auth = FirebaseAuth.getInstance()
 
     try {

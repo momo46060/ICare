@@ -65,7 +65,7 @@ class ClinicRepositoryImpl : ClinicRepository {
     override fun getDoctors(): List<DoctorModel> {
         val sql="""
             select D.DoctorID,U.FirstName,U.LastName,U.Email,U.IsActive,D.Specialization,
-                   D.from_time,D.to_time,D.ClinicID,U.phone
+                   D.From_Time,D.To_Time,D.ClinicID,U.phone,D.Price,D.Rating
             from Doctors D
             join Users U
             on D.DoctorID = U.UserID
@@ -80,14 +80,13 @@ class ClinicRepositoryImpl : ClinicRepository {
                 email = rs.getString("Email"),
                 isActive = rs.getBoolean("IsActive"),
                 specialization = rs.getString("Specialization"),
-                fromTime = rs.getLong("from_time"),
-                toTime = rs.getLong("to_time"),
+                fromTime = rs.getLong("From_Time"),
+                toTime = rs.getLong("To_Time"),
                 clinicId = rs.getString("ClinicID"),
-                phoneNumber = rs.getString("phone")
-
-
+                phoneNumber = rs.getString("phone"),
+                price = rs.getDouble("Price"),
+                rating=rs.getDouble("Rating")
             )
-
         }
     }
 

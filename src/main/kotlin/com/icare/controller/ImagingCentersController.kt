@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController
 class ImagingCentersController {
     @Autowired
     lateinit var service: ImagingCentersService
-    @PostMapping("/add_imaging_center")
+    @PostMapping("/addImagingCenter")
     fun addImagingCenter(@RequestBody ImagingCentersModel: ImagingCentersModel): ResponseModel {
         return service.insertImagingCenter(ImagingCentersModel)
     }
 
-    @PostMapping("/get_imaging_centers")
+    @PostMapping("/getImagingCenters")
     fun getImagingCenters(@RequestBody request: TokenRequest): ResponseModel {
         return service.getImagingCenters(request.token)
     }

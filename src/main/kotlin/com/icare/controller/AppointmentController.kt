@@ -19,11 +19,11 @@ class AppointmentController {
     fun bookAppointment(@RequestBody appointment: Appointment): ResponseModel {
     return service.bookAppointment(appointment)
     }
- @PostMapping ("/PatientAppointment")
+ @PostMapping ("/patientAppointment")
     fun getPatientAppointment(@RequestBody request: TokenRequest): ResponseModel {
     return service.getPatientAppointments(request.token)
     }
- @PostMapping ("/AppointmentByStatus")
+ @PostMapping ("/appointmentByStatus")
     fun getAppointmentByStatus(@RequestBody request: TokenRequest): ResponseModel {
     return service.getAppointmentsByStatus(request.status,request.token)
     }
