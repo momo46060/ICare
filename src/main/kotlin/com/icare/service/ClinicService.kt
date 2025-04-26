@@ -11,6 +11,7 @@ interface ClinicService {
 
     fun addClinic(clinic: ClinicModel): ResponseModel
     fun getClinics(token: String): ResponseModel
+    fun getDoctorSchedule(token: String): ResponseModel
     fun getDoctors(token: String): ResponseModel
     fun Consultation(consultationModel: ConsultationModel): ResponseModel
     fun getConsultationsByPrescriptionStatus(request: TokenRequest): ResponseModel
