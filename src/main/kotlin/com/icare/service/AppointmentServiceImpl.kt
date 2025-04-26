@@ -30,7 +30,7 @@ class AppointmentServiceImpl: AppointmentService {
         }
     }
 
-    override fun getAppointmentsByStatus(status: Int,token: String): ResponseModel {
+    override fun getAppointmentsByStatus(status: Short,token: String): ResponseModel {
         if (getUid(token) == null) {
             return ResponseModel(status= INVALID_TOKEN, message = "Unauthorized")
         }else if (repository.getAppointmentsByStatus(status).isEmpty()){
