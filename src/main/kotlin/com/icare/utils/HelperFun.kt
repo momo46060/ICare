@@ -4,8 +4,10 @@ import com.google.firebase.auth.AuthErrorCode
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.UserRecord
+import com.icare.model.TimeSlot
 
 data class EmptyUIdException(override val message: String?) : Exception()
+const val MINUTES_TO_MILLIS = 60000
 
 
 fun getUid(token: String): String? {
@@ -121,3 +123,20 @@ fun createUser(email: String, password: String, name: String, uid: String): Stri
     }
 }
 
+
+fun TimeSlot.divide(slotDurationMinutes: Short): List<TimeSlot> {
+    require(slotDurationMinutes > 0) { "lengthMinutes was $slotDurationMinutes. Must specify positive amount of minutes." }
+
+    val lengthMillis = slotDurationMinutes * MINUTES_TO_MILLIS
+    val timeSlots = mutableListOf<TimeSlot>()
+    var nextStartTime = startTime
+
+    while (nextStartTime < endTime) {
+        val nextEndTime = nextStartTime + lengthMillis
+        val slotEndTime = if (nextEndTime > endTime) endTime else nextEndTime
+        timeSlots.add(TimeSlot(nextStartTime, slotEndTime))
+        nextStartTime = nextEndTime
+    }
+
+    return timeSlots
+}
