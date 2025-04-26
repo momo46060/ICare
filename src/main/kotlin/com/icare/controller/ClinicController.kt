@@ -46,6 +46,7 @@ class ClinicController {
 
     @PostMapping("/getConsultationsByPrescriptionStatus")
     fun getConsultationsByPrescriptionStatus(@RequestBody request: TokenRequest): ResponseModel {
+        println(request)
         return service.getConsultationsByPrescriptionStatus(request)
     }
 

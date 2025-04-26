@@ -12,6 +12,11 @@ import com.icare.utils.divide
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @Repository
 class ClinicRepositoryImpl : ClinicRepository {
@@ -174,11 +179,20 @@ class ClinicRepositoryImpl : ClinicRepository {
     }
 
     override fun consultation(consultation: ConsultationModel): Short {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val zoneId = ZoneId.systemDefault() // أو حدد المنطقة الزمنية لو عايز ZoneId.of("Africa/Cairo")
+
+        val formattedDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.date), zoneId)
+            .format(formatter)
+         val followUpDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.followUpDate), zoneId)
+            .format(formatter)
         val sql = """
             MERGE INTO Consultations AS target
-            USING (VALUES ('${consultation.appointment.doctorId}',
+            USING (VALUES (
+            '${consultation.consultationId}',
+            '${consultation.appointment.doctorId}',
                 '${consultation.appointment.patientId}',
-                '${consultation.date}',
+                '${formattedDate}',
                 '${consultation.diagnosis}',
                 '${consultation.pharmacyId}',
                 '${consultation.medications}',
@@ -189,26 +203,26 @@ class ClinicRepositoryImpl : ClinicRepository {
                 '${consultation.imagingCenterId}',
                 '${consultation.imagingCenterTest}',
                 '${consultation.imagingCenterStatus}',
-                '${consultation.followUpDate}'
-            )) AS source (DoctorID, PatientID, Date, Diagnosis, PharmacyID, Medications, PrescriptionsStatus, LabCenterID, LabTest, LabTestStatus, ImagingCenterID, ImagingCenterTest, ImagingCenterStatus, FollowUpDate)
-            ON target.DoctorID = source.DoctorID AND target.PatientID = source.PatientID  
+                '${followUpDate}'
+            )) AS source (consultationId,DoctorID, PatientID, ConDateTime, Diagnosis, PharmacyID, Medications, PrescriptionStatus, LabCenterID, LabTests, LabTestStatus, ImagingCenterID, ImagingCenterTests, ImagingTestStatus, FollowUpDate)
+            ON target.consultationId = source.consultationId   
             WHEN MATCHED THEN
                 UPDATE SET 
-                    Date = source.Date,
+                    ConDateTime = source.ConDateTime,
                     Diagnosis = source.Diagnosis,
                     PharmacyID = source.PharmacyID,
                     Medications = source.Medications,
-                    PrescriptionsStatus = source.PrescriptionsStatus,
+                    PrescriptionStatus = source.PrescriptionStatus,
                     LabCenterID = source.LabCenterID,
-                    LabTest = source.LabTest,
+                    LabTests = source.LabTests,
                     LabTestStatus = source.LabTestStatus,
                     ImagingCenterID = source.ImagingCenterID,
-                    ImagingCenterTest = source.ImagingCenterTest,
-                    ImagingCenterStatus = source.ImagingCenterStatus,
+                    ImagingCenterTests = source.ImagingCenterTests,
+                    ImagingTestStatus = source.ImagingTestStatus,
                     FollowUpDate = source.FollowUpDate
             WHEN NOT MATCHED THEN
-                INSERT (DoctorID, PatientID, Date, Diagnosis, PharmacyID, Medications, PrescriptionsStatus, LabCenterID, LabTest, LabTestStatus, ImagingCenterID, ImagingCenterTest, ImagingCenterStatus, FollowUpDate)
-                VALUES (source.DoctorID, source.PatientID, source.Date, source.Diagnosis, source.PharmacyID, source.Medications, source.PrescriptionsStatus, source.LabCenterID, source.LabTest, source.LabTestStatus, source.ImagingCenterID, source.ImagingCenterTest, source.ImagingCenterStatus, source.FollowUpDate);
+                INSERT (DoctorID, PatientID, ConDateTime, Diagnosis, PharmacyID, Medications, PrescriptionStatus, LabCenterID, LabTests, LabTestStatus, ImagingCenterID, ImagingCenterTests, ImagingTestStatus, FollowUpDate)
+                VALUES (source.DoctorID, source.PatientID, source.ConDateTime, source.Diagnosis, source.PharmacyID, source.Medications, source.PrescriptionStatus, source.LabCenterID, source.LabTests, source.LabTestStatus, source.ImagingCenterID, source.ImagingCenterTests, source.ImagingTestStatus, source.FollowUpDate);
         """.trimIndent()
         try {
             iCareJdbcTemplate.update(sql)
@@ -222,82 +236,82 @@ class ClinicRepositoryImpl : ClinicRepository {
 
     override fun getConsultationsByPrescriptionStatus(status: Short): List<ConsultationModel> {
         val sql = """
-          SELECT c.*,
+         SELECT c.*,
+       doc.Specialization,
        d.FirstName as 'doctor_first_name',
        d.LastName as doctor_last_name,
        p.FirstName as 'patient_first_name'
-     , p.LastName as 'patient_last_name'
+        , p.LastName as 'patient_last_name'
 FROM Consultations c
-JOIN Users d ON c.DoctorID = d.UserID
-join Users p on c.PatientID = p.UserID
-where c.PrescriptionStatus = 1;  
+         JOIN Users d ON c.DoctorID = d.UserID
+         join Users p on c.PatientID = p.UserID
+         join Doctors doc on doc.DoctorID = c.DoctorID
+where c.PrescriptionStatus =  ${status};  
         """.trimIndent()
         return iCareJdbcTemplate.query(sql) { rs, _ ->
             ConsultationModel(
+                consultationId = rs.getLong("consultationId"),
                 appointment = Appointment(
-                    token = rs.getString("Token"),
                     patientId = rs.getString("PatientID"),
                     doctorId = rs.getString("DoctorID"),
-                    appointmentTime = rs.getLong("Date"),
-                    appointmentId = rs.getLong("AppointmentID"),
-                    statusId = rs.getShort("StatusID"),
-                    doctorSpecialty = rs.getString("doctor_specialty"),
+                    doctorSpecialty = rs.getString("Specialization"),
+                  /*  statusId = rs.getShort("StatusID"), */
                     patientName = "${rs.getString("patient_first_name")} ${rs.getString("patient_last_name")}",
                     doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}"
-                ),
+             ),
                 diagnosis = rs.getString("Diagnosis"),
                 pharmacyId = rs.getLong("PharmacyID"),
                 medications = rs.getString("Medications"),
-                prescriptionsStatus = rs.getShort("PrescriptionsStatus"),
+                prescriptionsStatus = rs.getShort("PrescriptionStatus"),
                 labCenterId = rs.getLong("LabCenterID"),
-                labTest = rs.getString("LabTest"),
+                labTest = rs.getString("LabTests"),
                 labTestStatus = rs.getShort("LabTestStatus"),
                 imagingCenterId = rs.getLong("ImagingCenterID"),
-                imagingCenterTest = rs.getString("ImagingCenterTest"),
-                imagingCenterStatus = rs.getShort("ImagingCenterStatus"),
-                followUpDate = rs.getLong("FollowUpDate"),
-                date = rs.getDate("Date").time,
+                imagingCenterTest = rs.getString("ImagingCenterTests"),
+                imagingCenterStatus = rs.getShort("ImagingTestStatus"),
+                followUpDate = rs.getDate("FollowUpDate").time,
+                date = rs.getDate("ConDateTime").time,
             )
         }
     }
 
     override fun getConsultationsByLabTestStatus(status: Short): List<ConsultationModel> {
         val sql = """
-     SELECT c.*,
+      SELECT c.*,
+       doc.Specialization,
        d.FirstName as 'doctor_first_name',
        d.LastName as doctor_last_name,
        p.FirstName as 'patient_first_name'
-     , p.LastName as 'patient_last_name'
+        , p.LastName as 'patient_last_name'
 FROM Consultations c
-JOIN Users d ON c.DoctorID = d.UserID
-join Users p on c.PatientID = p.UserID
-where c.LabTestStatus = 1; 
+         JOIN Users d ON c.DoctorID = d.UserID
+         join Users p on c.PatientID = p.UserID
+         join Doctors doc on doc.DoctorID = c.DoctorID
+where c.LabTestStatus = $status; 
         """.trimIndent()
         return iCareJdbcTemplate.query(sql) { rs, _ ->
             ConsultationModel(
+                consultationId = rs.getLong("consultationId"),
                 appointment = Appointment(
-                    token = rs.getString("Token"),
                     patientId = rs.getString("PatientID"),
                     doctorId = rs.getString("DoctorID"),
-                    appointmentTime = rs.getLong("Date"),
-                    appointmentId = rs.getLong("AppointmentID"),
-                    statusId = rs.getShort("StatusID"),
-                    doctorSpecialty = rs.getString("doctor_specialty"),
+                    doctorSpecialty = rs.getString("Specialization"),
+                    /*  statusId = rs.getShort("StatusID"), */
                     patientName = "${rs.getString("patient_first_name")} ${rs.getString("patient_last_name")}",
                     doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}"
                 ),
                 diagnosis = rs.getString("Diagnosis"),
                 pharmacyId = rs.getLong("PharmacyID"),
                 medications = rs.getString("Medications"),
-                prescriptionsStatus = rs.getShort("PrescriptionsStatus"),
+                prescriptionsStatus = rs.getShort("PrescriptionStatus"),
                 labCenterId = rs.getLong("LabCenterID"),
-                labTest = rs.getString("LabTest"),
+                labTest = rs.getString("LabTests"),
                 labTestStatus = rs.getShort("LabTestStatus"),
                 imagingCenterId = rs.getLong("ImagingCenterID"),
-                imagingCenterTest = rs.getString("ImagingCenterTest"),
-                imagingCenterStatus = rs.getShort("ImagingCenterStatus"),
-                followUpDate = rs.getLong("FollowUpDate"),
-                date = rs.getDate("Date").time,
+                imagingCenterTest = rs.getString("ImagingCenterTests"),
+                imagingCenterStatus = rs.getShort("ImagingTestStatus"),
+                followUpDate = rs.getDate("FollowUpDate").time,
+                date = rs.getDate("ConDateTime").time,
             )
         }
 
@@ -305,41 +319,41 @@ where c.LabTestStatus = 1;
 
     override fun getConsultationsByImaginingTestStatus(status: Short): List<ConsultationModel> {
         val sql = """
-        SELECT c.*,
+         SELECT c.*,
+       doc.Specialization,
        d.FirstName as 'doctor_first_name',
        d.LastName as doctor_last_name,
        p.FirstName as 'patient_first_name'
-     , p.LastName as 'patient_last_name'
+        , p.LastName as 'patient_last_name'
 FROM Consultations c
-JOIN Users d ON c.DoctorID = d.UserID
-join Users p on c.PatientID = p.UserID
-where c.ImagingTestStatus = 1;
+         JOIN Users d ON c.DoctorID = d.UserID
+         join Users p on c.PatientID = p.UserID
+         join Doctors doc on doc.DoctorID = c.DoctorID
+where c.ImagingTestStatus = $status;
         """.trimIndent()
         return iCareJdbcTemplate.query(sql) { rs, _ ->
             ConsultationModel(
+                consultationId = rs.getLong("consultationId"),
                 appointment = Appointment(
-                    token = rs.getString("Token"),
                     patientId = rs.getString("PatientID"),
                     doctorId = rs.getString("DoctorID"),
-                    appointmentTime = rs.getLong("Date"),
-                    appointmentId = rs.getLong("AppointmentID"),
-                    statusId = rs.getShort("StatusID"),
-                    doctorSpecialty = rs.getString("doctor_specialty"),
+                    doctorSpecialty = rs.getString("Specialization"),
+                    /*  statusId = rs.getShort("StatusID"), */
                     patientName = "${rs.getString("patient_first_name")} ${rs.getString("patient_last_name")}",
                     doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}"
                 ),
                 diagnosis = rs.getString("Diagnosis"),
                 pharmacyId = rs.getLong("PharmacyID"),
                 medications = rs.getString("Medications"),
-                prescriptionsStatus = rs.getShort("PrescriptionsStatus"),
+                prescriptionsStatus = rs.getShort("PrescriptionStatus"),
                 labCenterId = rs.getLong("LabCenterID"),
-                labTest = rs.getString("LabTest"),
+                labTest = rs.getString("LabTests"),
                 labTestStatus = rs.getShort("LabTestStatus"),
                 imagingCenterId = rs.getLong("ImagingCenterID"),
-                imagingCenterTest = rs.getString("ImagingCenterTest"),
-                imagingCenterStatus = rs.getShort("ImagingCenterStatus"),
-                followUpDate = rs.getLong("FollowUpDate"),
-                date = rs.getDate("Date").time,
+                imagingCenterTest = rs.getString("ImagingCenterTests"),
+                imagingCenterStatus = rs.getShort("ImagingTestStatus"),
+                followUpDate = rs.getDate("FollowUpDate").time,
+                date = rs.getDate("ConDateTime").time,
             )
         }
     }
