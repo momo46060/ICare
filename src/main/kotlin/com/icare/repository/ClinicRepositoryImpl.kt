@@ -1,5 +1,6 @@
 package com.icare.repository
 
+import com.icare.model.Appointment
 import com.icare.model.ClinicModel
 import com.icare.model.ConsultationModel
 import com.icare.model.DoctorModel
@@ -49,21 +50,21 @@ class ClinicRepositoryImpl : ClinicRepository {
     }
 
     override fun getClinics(): List<ClinicModel> {
-        val sql="""select * from Clinics""".trimIndent()
-        return iCareJdbcTemplate.query(sql)  { rs, _ ->
+        val sql = """select * from Clinics""".trimIndent()
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
             ClinicModel(
                 clinicID = rs.getInt("ClinicID"),
                 clinicName = rs.getString("Clinic_Name"),
                 clinicType = rs.getString("ClinicType"),
                 phone = rs.getString("Phone"),
                 clinicLocaltion = rs.getString("ClinicLocation"),
-                isOpen=rs.getBoolean("IsOpen")
+                isOpen = rs.getBoolean("IsOpen")
             )
         }
     }
 
     override fun getDoctors(): List<DoctorModel> {
-        val sql="""
+        val sql = """
             select D.DoctorID,U.FirstName,U.LastName,U.Email,U.IsActive,D.Specialization,
                    D.From_Time,D.To_Time,D.ClinicID,U.phone,D.Price,D.Rating
             from Doctors D
@@ -71,11 +72,11 @@ class ClinicRepositoryImpl : ClinicRepository {
             on D.DoctorID = U.UserID
         """.trimIndent()
 
-        return iCareJdbcTemplate.query(sql){rs, _ ->
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
 
             DoctorModel(
                 doctorID = rs.getString("DoctorID"),
-                fname =  rs.getString("FirstName"),
+                fname = rs.getString("FirstName"),
                 lname = rs.getString("LastName"),
                 email = rs.getString("Email"),
                 isActive = rs.getBoolean("IsActive"),
@@ -85,7 +86,7 @@ class ClinicRepositoryImpl : ClinicRepository {
                 clinicId = rs.getString("ClinicID"),
                 phoneNumber = rs.getString("phone"),
                 price = rs.getDouble("Price"),
-                rating=rs.getDouble("Rating")
+                rating = rs.getDouble("Rating")
             )
         }
     }
@@ -93,8 +94,8 @@ class ClinicRepositoryImpl : ClinicRepository {
     override fun consultation(consultation: ConsultationModel): Short {
         val sql = """
             MERGE INTO Consultations AS target
-            USING (VALUES ('${consultation.doctorId}',
-                '${consultation.patientId}',
+            USING (VALUES ('${consultation.appointment.doctorId}',
+                '${consultation.appointment.patientId}',
                 '${consultation.date}',
                 '${consultation.diagnosis}',
                 '${consultation.pharmacyId}',
@@ -135,6 +136,55 @@ class ClinicRepositoryImpl : ClinicRepository {
             println(e.message)
             return FAILED
         }
+    }
+
+    override fun getConsultationsByPrescriptionStatus(status: Short): List<ConsultationModel> {
+        val sql = """
+          SELECT c.*,
+       d.FirstName as 'doctor_first_name',
+       d.LastName as doctor_last_name,
+       p.FirstName as 'patient_first_name'
+     , p.LastName as 'patient_last_name'
+FROM Consultations c
+JOIN Users d ON c.DoctorID = d.UserID
+join Users p on c.PatientID = p.UserID
+where c.PrescriptionStatus = 1;  
+        """.trimIndent()
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
+            ConsultationModel(
+                appointment = Appointment(
+                    token = rs.getString("Token"),
+                    patientId = rs.getString("PatientID"),
+                    doctorId = rs.getString("DoctorID"),
+                    appointmentTime = rs.getLong("Date"),
+                    appointmentId = rs.getLong("AppointmentID"),
+                    statusId = rs.getShort("StatusID"),
+                    doctorSpecialty = rs.getString("doctor_specialty"),
+                    patientName = "${rs.getString("patient_first_name")} ${rs.getString("patient_last_name")}",
+                    doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}"
+                ),
+                diagnosis = rs.getString("Diagnosis"),
+                pharmacyId = rs.getLong("PharmacyID"),
+                medications = rs.getString("Medications"),
+                prescriptionsStatus = rs.getShort("PrescriptionsStatus"),
+                labCenterId = rs.getLong("LabCenterID"),
+                labTest = rs.getString("LabTest"),
+                labTestStatus = rs.getShort("LabTestStatus"),
+                imagingCenterId = rs.getLong("ImagingCenterID"),
+                imagingCenterTest = rs.getString("ImagingCenterTest"),
+                imagingCenterStatus = rs.getShort("ImagingCenterStatus"),
+                followUpDate = rs.getLong("FollowUpDate"),
+                date = rs.getDate("Date").time,
+            )
+        }
+    }
+
+    override fun getConsultationsByLabTestStatus(status: Short): List<ConsultationModel> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getConsultationsByImaginingTestStatus(status: Short): List<ConsultationModel> {
+        TODO("Not yet implemented")
     }
 
 }
