@@ -4,8 +4,11 @@ import com.icare.model.Appointment
 import com.icare.model.ClinicModel
 import com.icare.model.ConsultationModel
 import com.icare.model.DoctorModel
+import com.icare.model.DoctorSchedule
+import com.icare.model.TimeSlot
 import com.icare.utils.FAILED
 import com.icare.utils.OK
+import com.icare.utils.divide
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
@@ -61,6 +64,85 @@ class ClinicRepositoryImpl : ClinicRepository {
                 isOpen = rs.getBoolean("IsOpen")
             )
         }
+    }
+
+    override fun getDoctorSchedule(uid: String): DoctorSchedule {
+        val infoSql = """
+            SELECT Price, From_Time, To_Time
+            FROM Doctors
+            INNER JOIN Users on UserID = DoctorID
+            WHERE DoctorID = '$uid'
+        """.trimIndent()
+        val doctor = iCareJdbcTemplate.queryForObject(infoSql) { rs, _ ->
+            DoctorModel(
+                doctorID = uid,
+                price = rs.getDouble("Price"),
+                fromTime = rs.getLong("From_Time"),
+                toTime = rs.getLong("To_Time")
+            )
+        } ?: DoctorModel()
+
+        val patientsSql = """
+            select count(*) from Appointments
+            where DoctorID='$uid'
+        """.trimIndent()
+        val totalPatients = iCareJdbcTemplate.queryForObject(patientsSql) { rs, _ ->
+            rs.getLong(1)
+        } ?: 0
+
+        val confirmedSql = """
+            select count(*) from Appointments
+            where DoctorID='$uid'
+            and StatusID = 2
+        """.trimIndent()
+        val confirmed = iCareJdbcTemplate.queryForObject(confirmedSql) { rs, _ ->
+            rs.getLong(1)
+        } ?: 0
+
+        val todaySql = """
+            select count(*) from Appointments
+            where DoctorID='$uid'
+            and CAST(AppointmentDate AS DATE) = CAST(GETDATE() AS DATE)
+        """.trimIndent()
+        val todayAppointments = iCareJdbcTemplate.queryForObject(todaySql) { rs, _ ->
+            rs.getLong(1)
+        } ?: 0
+        val timeSlotsCount = TimeSlot(startTime = doctor.fromTime, endTime = doctor.toTime).divide(
+            slotDurationMinutes = 30,
+        ).count()
+        val availableSlots = (timeSlotsCount - todayAppointments).toShort()
+
+        val appointmentsSql = """
+            select P.FirstName + ' ' + P.LastName as 'PatientName', D.FirstName + ' ' + D.LastName as 'DoctorName',
+             D2.Specialization,A.*
+            from Appointments A
+                     inner join Users P on P.UserID = A.PatientID
+                     inner join Users D on D.UserID = A.DoctorID
+                     inner join Doctors D2 on D2.DoctorID = A.DoctorID
+            where A.DoctorID = '$uid'
+        """.trimIndent()
+
+        val appointments =
+            iCareJdbcTemplate.query(appointmentsSql) { rs, _ ->
+                Appointment(
+                    appointmentId = rs.getLong("AppointmentID"),
+                    patientId = rs.getString("PatientID"),
+                    doctorId = rs.getString("DoctorID"),
+                    appointmentTime = rs.getDate("AppointmentDate").time,
+                    statusId = rs.getShort("StatusID"),
+                    doctorSpecialty = rs.getString("Specialization"),
+                    patientName = rs.getString("PatientName"),
+                    doctorName = rs.getString("DoctorName"),
+                )
+            }
+
+        return DoctorSchedule(
+            totalPatients = totalPatients,
+            confirmed = confirmed,
+            price = doctor.price,
+            availableSlots = availableSlots,
+            appointments = appointments
+        )
     }
 
     override fun getDoctors(): List<DoctorModel> {
@@ -222,7 +304,7 @@ where c.LabTestStatus = 1;
     }
 
     override fun getConsultationsByImaginingTestStatus(status: Short): List<ConsultationModel> {
-        val sql= """
+        val sql = """
         SELECT c.*,
        d.FirstName as 'doctor_first_name',
        d.LastName as doctor_last_name,
