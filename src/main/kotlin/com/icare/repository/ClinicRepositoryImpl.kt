@@ -181,7 +181,6 @@ class ClinicRepositoryImpl : ClinicRepository {
     override fun consultation(consultation: ConsultationModel): Short {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         val zoneId = ZoneId.systemDefault() // أو حدد المنطقة الزمنية لو عايز ZoneId.of("Africa/Cairo")
-
         val formattedDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.date), zoneId)
             .format(formatter)
          val followUpDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.followUpDate), zoneId)
@@ -224,8 +223,12 @@ class ClinicRepositoryImpl : ClinicRepository {
                 INSERT (DoctorID, PatientID, ConDateTime, Diagnosis, PharmacyID, Medications, PrescriptionStatus, LabCenterID, LabTests, LabTestStatus, ImagingCenterID, ImagingCenterTests, ImagingTestStatus, FollowUpDate)
                 VALUES (source.DoctorID, source.PatientID, source.ConDateTime, source.Diagnosis, source.PharmacyID, source.Medications, source.PrescriptionStatus, source.LabCenterID, source.LabTests, source.LabTestStatus, source.ImagingCenterID, source.ImagingCenterTests, source.ImagingTestStatus, source.FollowUpDate);
         """.trimIndent()
+        val updatesql = """
+            update Appointments set StatusID = 3 where AppointmentID = ${consultation.appointment.appointmentId};
+        """.trimIndent()
         try {
             iCareJdbcTemplate.update(sql)
+            iCareJdbcTemplate.update(updatesql)
             return OK
         } catch (e: Exception) {
             println(e.stackTrace)
