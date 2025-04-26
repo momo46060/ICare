@@ -1,6 +1,7 @@
 package com.icare.controller
 
 import com.icare.model.ClinicModel
+import com.icare.model.ConsultationModel
 import com.icare.model.ResponseModel
 import com.icare.model.TokenRequest
 import com.icare.service.ClinicService
@@ -29,6 +30,10 @@ class ClinicController {
     @PostMapping("/getdoctors")
     fun getDoctors (@RequestBody request: TokenRequest): ResponseModel {
         return service.getDoctors(request.token)
+    }
+    @PostMapping("/consultation")
+    fun consultation(@RequestBody consultationModel: ConsultationModel): ResponseModel {
+        return service.Consultation(consultationModel)
     }
 
 }
