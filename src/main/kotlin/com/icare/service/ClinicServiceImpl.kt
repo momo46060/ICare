@@ -1,6 +1,7 @@
 package com.icare.service
 
 import com.icare.model.ClinicModel
+import com.icare.model.ConsultationModel
 import com.icare.model.DoctorModel
 import com.icare.model.ResponseModel
 import com.icare.repository.ClinicRepository
@@ -50,6 +51,19 @@ class ClinicServiceImpl : ClinicService{
                 return ResponseModel(status= EMPTY_LIST, data = listOf<DoctorModel>())
             }else{
                 return ResponseModel(status=OK,data = repository.getDoctors())
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            return ResponseModel(status= FAILED, data = listOf<DoctorModel>())
+        }
+    }
+
+    override fun Consultation(consultationModel: ConsultationModel): ResponseModel {
+        try {
+            if(getUid(consultationModel.token) == null) {
+                return ResponseModel(status=INVALID_TOKEN, data = listOf<DoctorModel>())
+            }else{
+                return ResponseModel(status=repository.consultation(consultationModel),data = repository.getDoctors())
             }
         }catch (e:Exception){
             e.printStackTrace()

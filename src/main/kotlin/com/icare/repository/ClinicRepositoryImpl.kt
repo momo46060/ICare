@@ -1,6 +1,7 @@
 package com.icare.repository
 
 import com.icare.model.ClinicModel
+import com.icare.model.ConsultationModel
 import com.icare.model.DoctorModel
 import com.icare.utils.FAILED
 import com.icare.utils.OK
@@ -47,12 +48,8 @@ class ClinicRepositoryImpl : ClinicRepository {
         }
     }
 
-
-
     override fun getClinics(): List<ClinicModel> {
-        val sql="""
-            select * from Clinics
-        """.trimIndent()
+        val sql="""select * from Clinics""".trimIndent()
         return iCareJdbcTemplate.query(sql)  { rs, _ ->
             ClinicModel(
                 clinicID = rs.getInt("ClinicID"),
@@ -91,6 +88,53 @@ class ClinicRepositoryImpl : ClinicRepository {
 
             )
 
+        }
+    }
+
+    override fun consultation(consultation: ConsultationModel): Short {
+        val sql = """
+            MERGE INTO Consultations AS target
+            USING (VALUES ('${consultation.doctorId}',
+                '${consultation.patientId}',
+                '${consultation.date}',
+                '${consultation.diagnosis}',
+                '${consultation.pharmacyId}',
+                '${consultation.medications}',
+                '${consultation.prescriptionsStatus}',
+                '${consultation.labCenterId}',
+                '${consultation.labTest}',
+                '${consultation.labTestStatus}',
+                '${consultation.imagingCenterId}',
+                '${consultation.imagingCenterTest}',
+                '${consultation.imagingCenterStatus}',
+                '${consultation.followUpDate}'
+            )) AS source (DoctorID, PatientID, Date, Diagnosis, PharmacyID, Medications, PrescriptionsStatus, LabCenterID, LabTest, LabTestStatus, ImagingCenterID, ImagingCenterTest, ImagingCenterStatus, FollowUpDate)
+            ON target.DoctorID = source.DoctorID AND target.PatientID = source.PatientID  
+            WHEN MATCHED THEN
+                UPDATE SET 
+                    Date = source.Date,
+                    Diagnosis = source.Diagnosis,
+                    PharmacyID = source.PharmacyID,
+                    Medications = source.Medications,
+                    PrescriptionsStatus = source.PrescriptionsStatus,
+                    LabCenterID = source.LabCenterID,
+                    LabTest = source.LabTest,
+                    LabTestStatus = source.LabTestStatus,
+                    ImagingCenterID = source.ImagingCenterID,
+                    ImagingCenterTest = source.ImagingCenterTest,
+                    ImagingCenterStatus = source.ImagingCenterStatus,
+                    FollowUpDate = source.FollowUpDate
+            WHEN NOT MATCHED THEN
+                INSERT (DoctorID, PatientID, Date, Diagnosis, PharmacyID, Medications, PrescriptionsStatus, LabCenterID, LabTest, LabTestStatus, ImagingCenterID, ImagingCenterTest, ImagingCenterStatus, FollowUpDate)
+                VALUES (source.DoctorID, source.PatientID, source.Date, source.Diagnosis, source.PharmacyID, source.Medications, source.PrescriptionsStatus, source.LabCenterID, source.LabTest, source.LabTestStatus, source.ImagingCenterID, source.ImagingCenterTest, source.ImagingCenterStatus, source.FollowUpDate);
+        """.trimIndent()
+        try {
+            iCareJdbcTemplate.update(sql)
+            return OK
+        } catch (e: Exception) {
+            println(e.stackTrace)
+            println(e.message)
+            return FAILED
         }
     }
 
