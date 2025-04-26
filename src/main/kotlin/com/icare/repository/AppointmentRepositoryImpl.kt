@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository
 
 
 @Repository
-class AppointmentRepositoryImpl: AppointmentsRepository {
+class AppointmentRepositoryImpl : AppointmentsRepository {
     @Autowired
     lateinit var iCareJdbcTemplate: JdbcTemplate
     override fun insertAppointments(appointment: Appointment): Short {
@@ -32,18 +32,20 @@ class AppointmentRepositoryImpl: AppointmentsRepository {
         INSERT (PatientID, DoctorID, AppointmentDate, StatusID)
         VALUES (source.PatientID, source.DoctorID, source.AppointmentDate, source.StatusID);
 """.trimIndent()
-        if (getUid(appointment.token) == null){
+        if (getUid(appointment.token) == null) {
             return INVALID_TOKEN
-        }else{
+        } else {
             try {
 
-                iCareJdbcTemplate.update(sql,
+                iCareJdbcTemplate.update(
+                    sql,
                     getUid(appointment.token),
                     appointment.doctorId,
                     appointment.appointmentTime,
-                    appointment.statusId)
+                    appointment.statusId
+                )
                 return OK
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
                 return FAILED
             }
@@ -52,7 +54,7 @@ class AppointmentRepositoryImpl: AppointmentsRepository {
     }
 
     override fun getPatientAppointments(uid: String): List<Appointment> {
-        val sql="""
+        val sql = """
             SELECT a.PatientId       as patientId,
                    a.DoctorId        as doctorId,
                    a.AppointmentDate as appointmentTime,
@@ -72,28 +74,28 @@ class AppointmentRepositoryImpl: AppointmentsRepository {
             return iCareJdbcTemplate.query(sql) { rs, _ ->
                 Appointment(
 
-                    patientId=rs.getString("patientId"),
-                    doctorId=rs.getString("doctorId"),
-                    appointmentTime=rs.getDate("appointmentTime").time,
+                    patientId = rs.getString("patientId"),
+                    doctorId = rs.getString("doctorId"),
+                    appointmentTime = rs.getDate("appointmentTime").time,
 
-                    appointmentId=rs.getLong("appointmentId"),
-                    statusId=rs.getShort("statusId"),
-                    doctorSpecialty=rs.getString("doctorSpecialty"),
-                    patientName=rs.getString("patientName"),
-                    doctorName=rs.getString("doctorName"),
-                    doctorImage=getImage(rs.getString("doctorId")) ?:"",
-                    patientImage=getImage(rs.getString("patientId")) ?:"",
+                    appointmentId = rs.getLong("appointmentId"),
+                    statusId = rs.getShort("statusId"),
+                    doctorSpecialty = rs.getString("doctorSpecialty"),
+                    patientName = rs.getString("patientName"),
+                    doctorName = rs.getString("doctorName"),
+                    doctorImage = getImage(rs.getString("doctorId")) ?: "",
+                    patientImage = getImage(rs.getString("patientId")) ?: "",
                 )
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             return listOf()
         }
 
     }
 
-    override fun getAppointmentsByStatus(status: Int): List<Appointment> {
-        val sql="""
+    override fun getAppointmentsByStatus(status: Short): List<Appointment> {
+        val sql = """
             SELECT a.PatientId       as patientId,
                    a.DoctorId        as doctorId,
                    a.AppointmentDate as appointmentTime,
@@ -112,20 +114,20 @@ class AppointmentRepositoryImpl: AppointmentsRepository {
         try {
             return iCareJdbcTemplate.query(sql) { rs, _ ->
                 Appointment(
-                    token =rs.getString("patientId"),
-                    doctorId=rs.getString("doctorId"),
-                    appointmentTime=rs.getLong("appointmentTime"),
+                    token = rs.getString("patientId"),
+                    doctorId = rs.getString("doctorId"),
+                    appointmentTime = rs.getLong("appointmentTime"),
 
-                    appointmentId=rs.getLong("appointmentId"),
-                    statusId=rs.getShort("statusId"),
-                    doctorSpecialty=rs.getString("doctorSpecialty"),
-                    patientName=rs.getString("patientName"),
-                    doctorName=rs.getString("doctorName"),
-                    doctorImage=getImage(rs.getString("doctorId")) ?:"",
-                    patientImage=getImage(rs.getString("patientId")) ?:"",
+                    appointmentId = rs.getLong("appointmentId"),
+                    statusId = rs.getShort("statusId"),
+                    doctorSpecialty = rs.getString("doctorSpecialty"),
+                    patientName = rs.getString("patientName"),
+                    doctorName = rs.getString("doctorName"),
+                    doctorImage = getImage(rs.getString("doctorId")) ?: "",
+                    patientImage = getImage(rs.getString("patientId")) ?: "",
                 )
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             return listOf()
         }
