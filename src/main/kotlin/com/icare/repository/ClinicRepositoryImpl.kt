@@ -180,11 +180,86 @@ where c.PrescriptionStatus = 1;
     }
 
     override fun getConsultationsByLabTestStatus(status: Short): List<ConsultationModel> {
-        TODO("Not yet implemented")
+        val sql = """
+     SELECT c.*,
+       d.FirstName as 'doctor_first_name',
+       d.LastName as doctor_last_name,
+       p.FirstName as 'patient_first_name'
+     , p.LastName as 'patient_last_name'
+FROM Consultations c
+JOIN Users d ON c.DoctorID = d.UserID
+join Users p on c.PatientID = p.UserID
+where c.LabTestStatus = 1; 
+        """.trimIndent()
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
+            ConsultationModel(
+                appointment = Appointment(
+                    token = rs.getString("Token"),
+                    patientId = rs.getString("PatientID"),
+                    doctorId = rs.getString("DoctorID"),
+                    appointmentTime = rs.getLong("Date"),
+                    appointmentId = rs.getLong("AppointmentID"),
+                    statusId = rs.getShort("StatusID"),
+                    doctorSpecialty = rs.getString("doctor_specialty"),
+                    patientName = "${rs.getString("patient_first_name")} ${rs.getString("patient_last_name")}",
+                    doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}"
+                ),
+                diagnosis = rs.getString("Diagnosis"),
+                pharmacyId = rs.getLong("PharmacyID"),
+                medications = rs.getString("Medications"),
+                prescriptionsStatus = rs.getShort("PrescriptionsStatus"),
+                labCenterId = rs.getLong("LabCenterID"),
+                labTest = rs.getString("LabTest"),
+                labTestStatus = rs.getShort("LabTestStatus"),
+                imagingCenterId = rs.getLong("ImagingCenterID"),
+                imagingCenterTest = rs.getString("ImagingCenterTest"),
+                imagingCenterStatus = rs.getShort("ImagingCenterStatus"),
+                followUpDate = rs.getLong("FollowUpDate"),
+                date = rs.getDate("Date").time,
+            )
+        }
+
     }
 
     override fun getConsultationsByImaginingTestStatus(status: Short): List<ConsultationModel> {
-        TODO("Not yet implemented")
+        val sql= """
+        SELECT c.*,
+       d.FirstName as 'doctor_first_name',
+       d.LastName as doctor_last_name,
+       p.FirstName as 'patient_first_name'
+     , p.LastName as 'patient_last_name'
+FROM Consultations c
+JOIN Users d ON c.DoctorID = d.UserID
+join Users p on c.PatientID = p.UserID
+where c.ImagingTestStatus = 1;
+        """.trimIndent()
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
+            ConsultationModel(
+                appointment = Appointment(
+                    token = rs.getString("Token"),
+                    patientId = rs.getString("PatientID"),
+                    doctorId = rs.getString("DoctorID"),
+                    appointmentTime = rs.getLong("Date"),
+                    appointmentId = rs.getLong("AppointmentID"),
+                    statusId = rs.getShort("StatusID"),
+                    doctorSpecialty = rs.getString("doctor_specialty"),
+                    patientName = "${rs.getString("patient_first_name")} ${rs.getString("patient_last_name")}",
+                    doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}"
+                ),
+                diagnosis = rs.getString("Diagnosis"),
+                pharmacyId = rs.getLong("PharmacyID"),
+                medications = rs.getString("Medications"),
+                prescriptionsStatus = rs.getShort("PrescriptionsStatus"),
+                labCenterId = rs.getLong("LabCenterID"),
+                labTest = rs.getString("LabTest"),
+                labTestStatus = rs.getShort("LabTestStatus"),
+                imagingCenterId = rs.getLong("ImagingCenterID"),
+                imagingCenterTest = rs.getString("ImagingCenterTest"),
+                imagingCenterStatus = rs.getShort("ImagingCenterStatus"),
+                followUpDate = rs.getLong("FollowUpDate"),
+                date = rs.getDate("Date").time,
+            )
+        }
     }
 
 }

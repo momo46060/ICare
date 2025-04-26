@@ -38,4 +38,18 @@ class ClinicController {
         return service.Consultation(consultationModel)
     }
 
+    @PostMapping("/getConsultationsByPrescriptionStatus")
+    fun getConsultationsByPrescriptionStatus(@RequestBody request: TokenRequest): ResponseModel {
+        return service.getConsultationsByPrescriptionStatus(request)
+    }
+    @PostMapping("/getConsultationsByLabTestStatus")
+    fun getConsultationsByLabTestStatus(@RequestBody request: TokenRequest): ResponseModel {
+        return service.getConsultationsByLabTestStatus(request)
+    }
+    @PostMapping("/getConsultationsByImaginingTestStatus")
+    fun getConsultationsByImaginingTestStatus(@RequestBody request: TokenRequest): ResponseModel {
+        return service.getConsultationsByImaginingTestStatus(request)
+    }
+
+
 }
