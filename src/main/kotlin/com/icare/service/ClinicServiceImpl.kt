@@ -4,6 +4,7 @@ import com.icare.model.ClinicModel
 import com.icare.model.ConsultationModel
 import com.icare.model.DoctorModel
 import com.icare.model.ResponseModel
+import com.icare.model.TokenRequest
 import com.icare.repository.ClinicRepository
 import com.icare.utils.EMPTY_LIST
 import com.icare.utils.FAILED
@@ -68,6 +69,45 @@ class ClinicServiceImpl : ClinicService{
         }catch (e:Exception){
             e.printStackTrace()
             return ResponseModel(status= FAILED, data = listOf<DoctorModel>())
+        }
+    }
+
+    override fun getConsultationsByPrescriptionStatus(request: TokenRequest): ResponseModel {
+        try {
+            if(getUid(request.token) == null) {
+                return ResponseModel(status=INVALID_TOKEN, data = listOf<ConsultationModel>())
+            }else{
+                return ResponseModel(status=OK,data = repository.getConsultationsByPrescriptionStatus(request.status))
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            return ResponseModel(status= FAILED, data = listOf<ConsultationModel>())
+        }
+    }
+
+    override fun getConsultationsByLabTestStatus(request: TokenRequest): ResponseModel {
+        try {
+            if(getUid(request.token) == null) {
+                return ResponseModel(status=INVALID_TOKEN, data = listOf<ConsultationModel>())
+            }else{
+                return ResponseModel(status=OK,data = repository.getConsultationsByLabTestStatus(request.status))
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            return ResponseModel(status= FAILED, data = listOf<ConsultationModel>())
+        }
+    }
+
+    override fun getConsultationsByImaginingTestStatus(request: TokenRequest): ResponseModel {
+        try {
+            if(getUid(request.token) == null) {
+                return ResponseModel(status=INVALID_TOKEN, data = listOf<ConsultationModel>())
+            }else{
+                return ResponseModel(status=OK,data = repository.getConsultationsByImaginingTestStatus(request.status))
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            return ResponseModel(status= FAILED, data = listOf<ConsultationModel>())
         }
     }
 }
