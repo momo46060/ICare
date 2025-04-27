@@ -128,7 +128,7 @@ class ClinicRepositoryImpl : ClinicRepository {
                     appointmentId = rs.getLong("AppointmentID"),
                     patientId = rs.getString("PatientID"),
                     doctorId = rs.getString("DoctorID"),
-                    appointmentTime = rs.getDate("AppointmentDate").time,
+                    appointmentTime = rs.getTimestamp("AppointmentDate").time,
                     statusId = rs.getShort("StatusID"),
                     doctorSpecialty = rs.getString("Specialization"),
                     patientName = rs.getString("PatientName"),
@@ -200,8 +200,8 @@ class ClinicRepositoryImpl : ClinicRepository {
                     imagingCenterId = rs.getLong("ImagingCenterID"),
                     imagingCenterTest = rs.getString("ImagingCenterTests"),
                     imagingCenterStatus = rs.getShort("ImagingTestStatus"),
-                    followUpDate = rs.getDate("FollowUpDate").time,
-                    date = rs.getDate("ConDateTime").time,
+                    followUpDate = rs.getTimestamp("FollowUpDate").time,
+                    date = rs.getTimestamp("ConDateTime").time,
                 )
             }
         return record.copy(consultations = consultations)
@@ -332,8 +332,8 @@ where c.PrescriptionStatus =  ${status};
                 imagingCenterId = rs.getLong("ImagingCenterID"),
                 imagingCenterTest = rs.getString("ImagingCenterTests"),
                 imagingCenterStatus = rs.getShort("ImagingTestStatus"),
-                followUpDate = rs.getDate("FollowUpDate").time,
-                date = rs.getDate("ConDateTime").time,
+                followUpDate = rs.getTimestamp("FollowUpDate").time,
+                date = rs.getTimestamp("ConDateTime").time,
             )
         }
     }
@@ -375,8 +375,8 @@ where c.LabTestStatus = $status;
                 imagingCenterId = rs.getLong("ImagingCenterID"),
                 imagingCenterTest = rs.getString("ImagingCenterTests"),
                 imagingCenterStatus = rs.getShort("ImagingTestStatus"),
-                followUpDate = rs.getDate("FollowUpDate").time,
-                date = rs.getDate("ConDateTime").time,
+                followUpDate = rs.getTimestamp("FollowUpDate").time,
+                date = rs.getTimestamp("ConDateTime").time,
             )
         }
 
@@ -419,8 +419,8 @@ where c.ImagingTestStatus = $status;
                 imagingCenterId = rs.getLong("ImagingCenterID"),
                 imagingCenterTest = rs.getString("ImagingCenterTests"),
                 imagingCenterStatus = rs.getShort("ImagingTestStatus"),
-                followUpDate = rs.getDate("FollowUpDate").time,
-                date = rs.getDate("ConDateTime").time,
+                followUpDate = rs.getTimestamp("FollowUpDate").time,
+                date = rs.getTimestamp("ConDateTime").time,
             )
         }
     }

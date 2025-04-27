@@ -76,7 +76,7 @@ class AppointmentRepositoryImpl : AppointmentsRepository {
 
                     patientId = rs.getString("patientId"),
                     doctorId = rs.getString("doctorId"),
-                    appointmentTime = rs.getDate("appointmentTime").time,
+                    appointmentTime = rs.getTimestamp("appointmentTime").time,
 
                     appointmentId = rs.getLong("appointmentId"),
                     statusId = rs.getShort("statusId"),
