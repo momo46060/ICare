@@ -31,7 +31,7 @@ class UserRepositoryImpl : UserRepository {
                     fName = rs.getString("FirstName"),
                     lName = rs.getString("LastName"),
                     email = rs.getString("Email"),
-                    birthDate = rs.getDate("BirthDate").time,
+                    birthDate = rs.getTimestamp("BirthDate").time,
                     gender = rs.getString("Gender"),
                     isActive = rs.getBoolean("IsActive"),
                     phoneNumber = rs.getString("phone"),
