@@ -32,17 +32,22 @@ class ClinicServiceImpl : ClinicService {
         }
     }
 
-    override fun getDoctorSchedule(token: String): ResponseModel {
-        return runCatching {
-            getUid(token)?.let { uid ->
-                ResponseModel(
-                    status = OK,
-                    data = repository.getDoctorSchedule(uid)
-                )
-            } ?: ResponseModel(status = INVALID_TOKEN, data = DoctorSchedule())
-        }.getOrElse {
-            ResponseModel(status = FAILED, data = DoctorSchedule())
-        }
+    override fun getDoctorSchedule(token: String): ResponseModel = runCatching {
+        getUid(token)?.let { uid ->
+            ResponseModel(
+                status = OK, data = repository.getDoctorSchedule(uid)
+            )
+        } ?: ResponseModel(status = INVALID_TOKEN, data = DoctorSchedule())
+    }.getOrElse {
+        ResponseModel(status = FAILED, data = DoctorSchedule())
+    }
+
+    override fun getMedicalRecord(token: String, uid: String): ResponseModel = runCatching {
+        getUid(token)?.let {
+            ResponseModel(status = OK, data = repository.getMedicalRecord(uid))
+        } ?: ResponseModel(status = INVALID_TOKEN, data = MedicalRecord())
+    }.getOrElse {
+        ResponseModel(status = FAILED, data = MedicalRecord())
     }
 
     override fun getDoctors(token: String): ResponseModel {
@@ -59,14 +64,13 @@ class ClinicServiceImpl : ClinicService {
         }
     }
 
-    override fun Consultation(consultationModel: ConsultationModel): ResponseModel {
+    override fun consultation(consultationModel: ConsultationModel): ResponseModel {
         try {
             if (getUid(consultationModel.token) == null) {
                 return ResponseModel(status = INVALID_TOKEN, data = null)
             } else {
                 return ResponseModel(
-                    status = repository.consultation(consultationModel),
-                    data = repository.getDoctors()
+                    status = repository.consultation(consultationModel), data = repository.getDoctors()
                 )
             }
         } catch (e: Exception) {
@@ -81,8 +85,7 @@ class ClinicServiceImpl : ClinicService {
                 return ResponseModel(status = INVALID_TOKEN, data = listOf<ConsultationModel>())
             } else {
                 return ResponseModel(
-                    status = OK,
-                    data = repository.getConsultationsByPrescriptionStatus(request.status)
+                    status = OK, data = repository.getConsultationsByPrescriptionStatus(request.status)
                 )
             }
         } catch (e: Exception) {
@@ -110,8 +113,7 @@ class ClinicServiceImpl : ClinicService {
                 return ResponseModel(status = INVALID_TOKEN, data = listOf<ConsultationModel>())
             } else {
                 return ResponseModel(
-                    status = OK,
-                    data = repository.getConsultationsByImaginingTestStatus(request.status)
+                    status = OK, data = repository.getConsultationsByImaginingTestStatus(request.status)
                 )
             }
         } catch (e: Exception) {
