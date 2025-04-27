@@ -9,40 +9,42 @@ import com.icare.utils.getUid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
+import java.sql.Timestamp
 
 
 @Repository
 class AppointmentRepositoryImpl : AppointmentsRepository {
     @Autowired
     lateinit var iCareJdbcTemplate: JdbcTemplate
+
     override fun insertAppointments(appointment: Appointment): Short {
         val sql = """
-    MERGE INTO Appointments AS target
-    USING (
-        SELECT ? AS PatientID, ? AS DoctorID, ? AS AppointmentDate, ? As StatusID
-    ) AS source
-    ON target.PatientID = source.PatientID 
-       AND target.DoctorID = source.DoctorID
-       AND target.AppointmentDate = source.AppointmentDate
-       AND target.StatusID = source.StatusID
-    WHEN MATCHED THEN
-        UPDATE SET 
-            AppointmentDate = source.AppointmentDate -- ممكن تتعدل لو عندك حقل آخر
-    WHEN NOT MATCHED BY TARGET THEN
-        INSERT (PatientID, DoctorID, AppointmentDate, StatusID)
-        VALUES (source.PatientID, source.DoctorID, source.AppointmentDate, source.StatusID);
-""".trimIndent()
+        MERGE INTO Appointments AS target
+        USING (
+            SELECT ? AS PatientID, ? AS DoctorID, ? AS AppointmentDate, ? AS StatusID
+        ) AS source
+        ON target.PatientID = source.PatientID
+           AND target.DoctorID = source.DoctorID
+           AND target.AppointmentDate = source.AppointmentDate
+        WHEN MATCHED THEN
+            UPDATE SET
+                StatusID = source.StatusID
+        WHEN NOT MATCHED BY TARGET THEN
+            INSERT (PatientID, DoctorID, AppointmentDate, StatusID)
+            VALUES (source.PatientID, source.DoctorID, source.AppointmentDate, source.StatusID);
+    """.trimIndent()
+
         if (getUid(appointment.token) == null) {
             return INVALID_TOKEN
         } else {
             try {
-
+                val appointmentDate = Timestamp(appointment.appointmentTime) // Convert epoch to Timestamp
                 iCareJdbcTemplate.update(
                     sql,
-                    getUid(appointment.token),
-                    appointment.doctorId,
-                    appointment.appointmentTime,
-                    appointment.statusId
+                    getUid(appointment.token),  // PatientID
+                    appointment.doctorId,      // DoctorID
+                    appointmentDate,           // AppointmentDate
+                    appointment.statusId       // StatusID
                 )
                 return OK
             } catch (e: Exception) {
@@ -50,7 +52,6 @@ class AppointmentRepositoryImpl : AppointmentsRepository {
                 return FAILED
             }
         }
-
     }
 
     override fun getPatientAppointments(uid: String): List<Appointment> {
