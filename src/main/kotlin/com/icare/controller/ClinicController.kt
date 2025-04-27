@@ -33,6 +33,11 @@ class ClinicController {
         return service.getDoctorSchedule(request.token)
     }
 
+    @PostMapping("/medicalRecord")
+    fun getMedicalRecord(@RequestBody request: TokenRequest): ResponseModel {
+        return service.getMedicalRecord(request.token, request.uid)
+    }
+
     @PostMapping("/getDoctors")
     fun getDoctors(@RequestBody request: TokenRequest): ResponseModel {
         println(request)
@@ -41,7 +46,7 @@ class ClinicController {
 
     @PostMapping("/consultation")
     fun consultation(@RequestBody consultationModel: ConsultationModel): ResponseModel {
-        return service.Consultation(consultationModel)
+        return service.consultation(consultationModel)
     }
 
     @PostMapping("/getConsultationsByPrescriptionStatus")
