@@ -1,14 +1,10 @@
 package com.icare.repository
 
-import com.icare.model.Appointment
-import com.icare.model.ClinicModel
-import com.icare.model.ConsultationModel
-import com.icare.model.DoctorModel
-import com.icare.model.DoctorSchedule
-import com.icare.model.TimeSlot
+import com.icare.model.*
 import com.icare.utils.FAILED
 import com.icare.utils.OK
 import com.icare.utils.divide
+import com.icare.utils.getImage
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
@@ -16,7 +12,6 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 @Repository
 class ClinicRepositoryImpl : ClinicRepository {
@@ -138,6 +133,8 @@ class ClinicRepositoryImpl : ClinicRepository {
                     doctorSpecialty = rs.getString("Specialization"),
                     patientName = rs.getString("PatientName"),
                     doctorName = rs.getString("DoctorName"),
+                    doctorImage = getImage(rs.getString("DoctorID")) ?: "",
+                    patientImage = getImage(rs.getString("PatientID")) ?: "",
                 )
             }
 
@@ -148,6 +145,66 @@ class ClinicRepositoryImpl : ClinicRepository {
             availableSlots = availableSlots,
             appointments = appointments
         )
+    }
+
+    override fun getMedicalRecord(uid: String): MedicalRecord {
+        val infoSql = """
+            SELECT Users.FirstName+' '+Users.LastName AS 'PatientName', Gender, Patients.* 
+            FROM Patients INNER JOIN Users
+            ON Patients.Patient_ID = Users.UserID
+            WHERE Users.UserID = '$uid'
+        """.trimIndent()
+        val record = iCareJdbcTemplate.queryForObject(infoSql) { rs, _ ->
+            MedicalRecord(
+                patientId = rs.getString("Patient_ID"),
+                patientName = rs.getString("PatientName"),
+                patientImage = getImage(rs.getString("Patient_ID")) ?: "",
+                gender = rs.getString("Gender").toString().first(),
+                chronicDiseases = rs.getString("ChronicDiseases"),
+                currentMedications = rs.getString("CurrentMedications"),
+                allergies = rs.getString("Allergies"),
+                pastSurgeries = rs.getString("PastSurgeries"),
+                weight = rs.getDouble("Weight"),
+            )
+        } ?: MedicalRecord()
+        val consultationsSql = """
+            select P.FirstName + ' ' + P.LastName as 'PatientName', D.FirstName + ' ' + D.LastName as 'DoctorName',
+            D2.Specialization,C.*
+            from dbo.Consultations C
+                     inner join Users P on P.UserID = C.PatientID
+                     inner join Users D on D.UserID = C.DoctorID
+                     inner join Doctors D2 on D2.DoctorID = C.DoctorID
+            where C.PatientID = '$uid'
+        """.trimIndent()
+
+        val consultations =
+            iCareJdbcTemplate.query(consultationsSql) { rs, _ ->
+                ConsultationModel(
+                    consultationId = rs.getLong("consultationId"),
+                    appointment = Appointment(
+                        patientId = rs.getString("PatientID"),
+                        doctorId = rs.getString("DoctorID"),
+                        doctorSpecialty = rs.getString("Specialization"),
+                        patientName = "${rs.getString("PatientName")}",
+                        patientImage = getImage(rs.getString("PatientID")) ?: "",
+                        doctorName = "${rs.getString("DoctorName")}",
+                        doctorImage = getImage(rs.getString("DoctorID")) ?: "",
+                    ),
+                    diagnosis = rs.getString("Diagnosis"),
+                    pharmacyId = rs.getLong("PharmacyID"),
+                    medications = rs.getString("Medications"),
+                    prescriptionsStatus = rs.getShort("PrescriptionStatus"),
+                    labCenterId = rs.getLong("LabCenterID"),
+                    labTest = rs.getString("LabTests"),
+                    labTestStatus = rs.getShort("LabTestStatus"),
+                    imagingCenterId = rs.getLong("ImagingCenterID"),
+                    imagingCenterTest = rs.getString("ImagingCenterTests"),
+                    imagingCenterStatus = rs.getShort("ImagingTestStatus"),
+                    followUpDate = rs.getDate("FollowUpDate").time,
+                    date = rs.getDate("ConDateTime").time,
+                )
+            }
+        return record.copy(consultations = consultations)
     }
 
     override fun getDoctors(): List<DoctorModel> {
@@ -173,7 +230,8 @@ class ClinicRepositoryImpl : ClinicRepository {
                 clinicId = rs.getString("ClinicID"),
                 phoneNumber = rs.getString("phone"),
                 price = rs.getDouble("Price"),
-                rating = rs.getDouble("Rating")
+                rating = rs.getDouble("Rating"),
+                profilePicture = getImage(rs.getString("DoctorID")) ?: "",
             )
         }
     }
@@ -183,7 +241,7 @@ class ClinicRepositoryImpl : ClinicRepository {
         val zoneId = ZoneId.systemDefault() // أو حدد المنطقة الزمنية لو عايز ZoneId.of("Africa/Cairo")
         val formattedDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.date), zoneId)
             .format(formatter)
-         val followUpDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.followUpDate), zoneId)
+        val followUpDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.followUpDate), zoneId)
             .format(formatter)
         val sql = """
             MERGE INTO Consultations AS target
@@ -258,10 +316,12 @@ where c.PrescriptionStatus =  ${status};
                     patientId = rs.getString("PatientID"),
                     doctorId = rs.getString("DoctorID"),
                     doctorSpecialty = rs.getString("Specialization"),
-                  /*  statusId = rs.getShort("StatusID"), */
+                    /*  statusId = rs.getShort("StatusID"), */
                     patientName = "${rs.getString("patient_first_name")} ${rs.getString("patient_last_name")}",
-                    doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}"
-             ),
+                    doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}",
+                    doctorImage = getImage(rs.getString("DoctorID")) ?: "",
+                    patientImage = getImage(rs.getString("PatientID")) ?: "",
+                ),
                 diagnosis = rs.getString("Diagnosis"),
                 pharmacyId = rs.getLong("PharmacyID"),
                 medications = rs.getString("Medications"),
@@ -301,8 +361,10 @@ where c.LabTestStatus = $status;
                     doctorSpecialty = rs.getString("Specialization"),
                     /*  statusId = rs.getShort("StatusID"), */
                     patientName = "${rs.getString("patient_first_name")} ${rs.getString("patient_last_name")}",
-                    doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}"
-                ),
+                    doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}",
+                    doctorImage = getImage(rs.getString("DoctorID")) ?: "",
+                    patientImage = getImage(rs.getString("PatientID")) ?: "",
+                    ),
                 diagnosis = rs.getString("Diagnosis"),
                 pharmacyId = rs.getLong("PharmacyID"),
                 medications = rs.getString("Medications"),
@@ -343,7 +405,9 @@ where c.ImagingTestStatus = $status;
                     doctorSpecialty = rs.getString("Specialization"),
                     /*  statusId = rs.getShort("StatusID"), */
                     patientName = "${rs.getString("patient_first_name")} ${rs.getString("patient_last_name")}",
-                    doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}"
+                    doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}",
+                    doctorImage = getImage(rs.getString("DoctorID")) ?: "",
+                    patientImage = getImage(rs.getString("PatientID")) ?: "",
                 ),
                 diagnosis = rs.getString("Diagnosis"),
                 pharmacyId = rs.getLong("PharmacyID"),
