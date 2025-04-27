@@ -1,10 +1,8 @@
 package com.icare.service
 
-import com.icare.model.ClinicModel
 import com.icare.model.PharmacyModel
 import com.icare.model.ResponseModel
 import com.icare.repository.PharmacyRepository
-import com.icare.utils.EMPTY_LIST
 import com.icare.utils.FAILED
 import com.icare.utils.INVALID_TOKEN
 import com.icare.utils.OK
@@ -24,8 +22,6 @@ class PharmacyServiceImpl : PharmacyService {
         try {
             if (getUid(token) == null) {
                 return ResponseModel(status=INVALID_TOKEN)
-            }else if (repository.getPharmacy().isEmpty()){
-                return ResponseModel(status= EMPTY_LIST, data = listOf<ClinicModel>())
             }else{
                 return ResponseModel(status= OK, data = repository.getPharmacy())
             }
@@ -40,8 +36,6 @@ class PharmacyServiceImpl : PharmacyService {
         try {
             if (getUid(token) == null) {
                 return ResponseModel(status=INVALID_TOKEN)
-            }else if (repository.getPharmaciest().isEmpty()){
-                return ResponseModel(status= EMPTY_LIST, data = listOf<ClinicModel>())
             }else{
                 return ResponseModel(status= OK, data = repository.getPharmaciest())
             }
