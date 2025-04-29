@@ -14,4 +14,5 @@ interface UserRepository {
     fun registerPharmacist(pharmacists: PharmacistsModel): Short
     fun getPharmacists(): List<PharmacistsModel>
     fun getClinicStaff(): List<ClinicStaffModel>
+    fun getCenterStaff(): List<CenterStaffModel>
 }

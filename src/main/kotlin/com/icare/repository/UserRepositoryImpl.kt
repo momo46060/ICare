@@ -374,7 +374,7 @@ WHEN NOT MATCHED BY TARGET THEN
                 pharmacyId = rs.getLong("Pharmacy_ID"),
                 pharmacyName = rs.getString("PharmacyName"),
                 profilePicture = getImage(rs.getString("UserID")) ?: "",
-                )
+            )
         }
     }
 
@@ -397,7 +397,30 @@ WHEN NOT MATCHED BY TARGET THEN
                 clinicId = rs.getLong("Clinic_ID"),
                 clinicName = rs.getString("Clinic_Name"),
                 profilePicture = getImage(rs.getString("UserID")) ?: "",
-                )
+            )
+        }
+    }
+
+    override fun getCenterStaff(): List<CenterStaffModel> {
+        val sql = """
+            SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.phone, S.Lab_Center_ID, C.CenterName
+            FROM dbo.Center_Staff S
+            JOIN Users U
+            ON S.Staff_ID = U.UserID
+            JOIN dbo.Lab_Imaging_Centers C
+            ON S.Lab_Center_ID = C.Center_ID;
+        """.trimIndent()
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
+            CenterStaffModel(
+                staffID = rs.getString("UserID"),
+                firstName = rs.getString("FirstName"),
+                lastName = rs.getString("LastName"),
+                email = rs.getString("Email"),
+                phoneNumber = rs.getString("phone"),
+                labCenterID = rs.getLong("Lab_Center_ID"),
+                centerName = rs.getString("CenterName"),
+                profilePicture = getImage(rs.getString("UserID")) ?: "",
+            )
         }
     }
 }

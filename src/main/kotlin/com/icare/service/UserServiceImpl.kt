@@ -51,5 +51,10 @@ class UserServiceImpl : UserService {
     override fun getClinicStaff(token: String): ResponseModel =
         getUid(token)?.let { uid ->
             ResponseModel(status = OK, data = repository.getClinicStaff(), message = "")
-        } ?: ResponseModel(status = INVALID_TOKEN, data = ClinicStaffModel())
+        } ?: ResponseModel(status = INVALID_TOKEN, data = listOf(ClinicStaffModel()))
+
+    override fun getCenterStaff(token: String): ResponseModel =
+        getUid(token)?.let { uid ->
+            ResponseModel(status = OK, data = repository.getCenterStaff(), message = "")
+        } ?: ResponseModel(status = INVALID_TOKEN, data = listOf(CenterStaffModel()))
 }
