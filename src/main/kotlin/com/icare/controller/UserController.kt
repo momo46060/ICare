@@ -37,12 +37,17 @@ class UserController {
 
     @PostMapping("/pharmacistRegister")
     fun pharmacistRegister(@RequestBody pharmacists: PharmacistsModel): ResponseModel {
-        return userService.registerPharmaciest(pharmacists)
+        return userService.registerPharmacist(pharmacists)
     }
 
     @PostMapping("/getPharmacists")
     fun getPharmacists(@RequestBody request: TokenRequest): ResponseModel {
         return userService.getPharmacists(request.token)
+    }
+
+    @PostMapping("/getClinicStaff")
+    fun getClinicStaff(@RequestBody request: TokenRequest): ResponseModel {
+        return userService.getClinicStaff(request.token)
     }
 }
 
