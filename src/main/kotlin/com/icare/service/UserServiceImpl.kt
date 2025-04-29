@@ -12,13 +12,12 @@ class UserServiceImpl : UserService {
     @Autowired
     lateinit var repository: UserRepository
 
-    override fun getLoginInfo(request: TokenRequest): ResponseModel {
-        return getUid(request.token)?.let { uid ->
+    override fun getLoginInfo(request: TokenRequest): ResponseModel =
+        getUid(request.token)?.let { uid ->
             repository.getLoginInfo(uid)?.let { users ->
                 ResponseModel(status = OK, data = users, message = "")
             } ?: ResponseModel(status = INVALID_USER, data = Users())
         } ?: ResponseModel(status = INVALID_TOKEN, data = Users())
-    }
 
     override fun registerPatient(patient: PatientModel): ResponseModel {
         return ResponseModel(repository.registerPatient(patient), "")
@@ -39,13 +38,18 @@ class UserServiceImpl : UserService {
     override fun getPharmacists(token: String): ResponseModel {
         try {
             if (getUid(token) == null) {
-                return ResponseModel(status=INVALID_TOKEN)
-            }else{
-                return ResponseModel(status= OK, data = repository.getPharmacists())
+                return ResponseModel(status = INVALID_TOKEN)
+            } else {
+                return ResponseModel(status = OK, data = repository.getPharmacists())
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
-            return ResponseModel(status= FAILED)
+            return ResponseModel(status = FAILED)
         }
     }
+
+    override fun getClinicStaff(token: String): ResponseModel =
+        getUid(token)?.let { uid ->
+            ResponseModel(status = OK, data = repository.getClinicStaff(), message = "")
+        } ?: ResponseModel(status = INVALID_TOKEN, data = ClinicStaffModel())
 }
