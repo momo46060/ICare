@@ -357,20 +357,47 @@ WHEN NOT MATCHED BY TARGET THEN
 
     override fun getPharmacists(): List<PharmacistsModel> {
         val sql = """
-            SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.phone, P.Pharmacy_ID
+            SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.phone, P.Pharmacy_ID, S.PharmacyName
                  FROM Pharmacists P
-                        JOIN Users U
-              ON P.Pharmacy_ID = U.UserID;
+                 JOIN Users U
+                 ON P.PharmacistID = U.UserID
+                 JOIN Pharmacies S
+                 ON P.Pharmacy_ID = S.Pharmacy_ID;
         """.trimIndent()
         return iCareJdbcTemplate.query(sql) { rs, _ ->
             PharmacistsModel(
-                token = rs.getString("UserID"),
+                pharmacistID = rs.getString("UserID"),
                 fName = rs.getString("FirstName"),
                 lName = rs.getString("LastName"),
                 email = rs.getString("Email"),
                 phoneNumber = rs.getString("phone"),
                 pharmacyId = rs.getLong("Pharmacy_ID"),
-            )
+                pharmacyName = rs.getString("PharmacyName"),
+                profilePicture = getImage(rs.getString("UserID")) ?: "",
+                )
+        }
+    }
+
+    override fun getClinicStaff(): List<ClinicStaffModel> {
+        val sql = """
+            SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.phone, S.Clinic_ID, C.Clinic_Name
+            FROM Clinic_Staff S
+            JOIN Users U
+            ON S.Staff_ID = U.UserID
+            JOIN dbo.Clinics C
+            ON S.Clinic_ID = C.ClinicID;
+        """.trimIndent()
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
+            ClinicStaffModel(
+                id = rs.getString("UserID"),
+                fName = rs.getString("FirstName"),
+                lName = rs.getString("LastName"),
+                email = rs.getString("Email"),
+                phoneNumber = rs.getString("phone"),
+                clinicId = rs.getLong("Clinic_ID"),
+                clinicName = rs.getString("Clinic_Name"),
+                profilePicture = getImage(rs.getString("UserID")) ?: "",
+                )
         }
     }
 }
