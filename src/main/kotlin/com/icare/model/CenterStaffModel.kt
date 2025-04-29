@@ -9,7 +9,7 @@ data class CenterStaffModel(
     val firstName: String = "",
     val lastName: String = "",
     val email: String = "",
-    val isActive: Boolean = false,
+    val isActive: Boolean = true,
     val phoneNumber: String = "",
     val profilePicture: String = "",
 )
