@@ -1,11 +1,7 @@
 package com.icare.repository
 
 import com.icare.model.Appointment
-import com.icare.utils.FAILED
-import com.icare.utils.INVALID_TOKEN
-import com.icare.utils.OK
-import com.icare.utils.getImage
-import com.icare.utils.getUid
+import com.icare.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
@@ -117,8 +113,44 @@ class AppointmentRepositoryImpl : AppointmentsRepository {
                 Appointment(
                     token = rs.getString("patientId"),
                     doctorId = rs.getString("doctorId"),
-                    appointmentTime = rs.getLong("appointmentTime"),
+                    appointmentTime = rs.getTimestamp("appointmentTime").time,
+                    appointmentId = rs.getLong("appointmentId"),
+                    statusId = rs.getShort("statusId"),
+                    doctorSpecialty = rs.getString("doctorSpecialty"),
+                    patientName = rs.getString("patientName"),
+                    doctorName = rs.getString("doctorName"),
+                    doctorImage = getImage(rs.getString("doctorId")) ?: "",
+                    patientImage = getImage(rs.getString("patientId")) ?: "",
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return listOf()
+        }
+    }
 
+    override fun getAppointments(): List<Appointment> {
+        val sql = """
+            SELECT a.PatientId       as patientId,
+                   a.DoctorId        as doctorId,
+                   a.AppointmentDate as appointmentTime,
+                  
+                   a.AppointmentID              as appointmentId,
+                   a.StatusID        as statusId,
+                   d.Specialization       as doctorSpecialty,
+                   up.FirstName+' '+up.LastName            as patientName,
+                   ud.FirstName+' '+ud.LastName            as doctorName
+            FROM Appointments a
+                     INNER JOIN Doctors d ON a.DoctorID = d.DoctorID
+                     INNER JOIN Users up ON a.PatientId = up.UserID
+                     INNER JOIN Users ud ON a.DoctorId = ud.UserID;
+        """.trimIndent()
+        try {
+            return iCareJdbcTemplate.query(sql) { rs, _ ->
+                Appointment(
+                    token = rs.getString("patientId"),
+                    doctorId = rs.getString("doctorId"),
+                    appointmentTime = rs.getTimestamp("appointmentTime").time,
                     appointmentId = rs.getLong("appointmentId"),
                     statusId = rs.getShort("statusId"),
                     doctorSpecialty = rs.getString("doctorSpecialty"),

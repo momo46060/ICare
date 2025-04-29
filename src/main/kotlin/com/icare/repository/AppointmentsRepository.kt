@@ -6,4 +6,5 @@ interface AppointmentsRepository {
     fun insertAppointments(appointment: Appointment): Short
     fun  getPatientAppointments(token: String): List<Appointment>
     fun getAppointmentsByStatus(status: Short): List<Appointment>
+    fun getAppointments(): List<Appointment>
 }

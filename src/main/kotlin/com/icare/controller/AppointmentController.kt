@@ -15,17 +15,25 @@ import org.springframework.web.bind.annotation.RestController
 class AppointmentController {
     @Autowired
     lateinit var service: AppointmentServiceImpl
-    @PostMapping ("/bookAppointment")
+
+    @PostMapping("/bookAppointment")
     fun bookAppointment(@RequestBody appointment: Appointment): ResponseModel {
-    return service.bookAppointment(appointment)
+        return service.bookAppointment(appointment)
     }
- @PostMapping ("/patientAppointment")
+
+    @PostMapping("/patientAppointment")
     fun getPatientAppointment(@RequestBody request: TokenRequest): ResponseModel {
-    return service.getPatientAppointments(request.token)
+        return service.getPatientAppointments(request.token)
     }
- @PostMapping ("/appointmentByStatus")
+
+    @PostMapping("/appointmentByStatus")
     fun getAppointmentByStatus(@RequestBody request: TokenRequest): ResponseModel {
-    return service.getAppointmentsByStatus(request.status,request.token)
+        return service.getAppointmentsByStatus(request.status, request.token)
+    }
+
+    @PostMapping("/getAppointments")
+    fun getAppointments(@RequestBody request: TokenRequest): ResponseModel {
+        return service.getAppointments(request.token)
     }
 
 }

@@ -8,5 +8,6 @@ interface AppointmentService {
     fun bookAppointment(Appointments: Appointment): ResponseModel
     fun getPatientAppointments(token: String): ResponseModel
     fun getAppointmentsByStatus(status: Short, token: String): ResponseModel
+    fun getAppointments(token: String): ResponseModel
 
 }
