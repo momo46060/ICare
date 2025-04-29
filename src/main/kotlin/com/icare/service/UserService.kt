@@ -7,7 +7,7 @@ interface UserService {
     fun registerPatient(patient: PatientModel): ResponseModel
     fun registerDoctor(doctor: DoctorModel): ResponseModel
     fun registerCenterStaff(centerStaffModel: CenterStaffModel): ResponseModel
-    fun registerPharmaciest(pharmaciests: PharmacistsModel): ResponseModel
+    fun registerPharmacist(pharmacists: PharmacistsModel): ResponseModel
     fun getPharmacists(token: String): ResponseModel
 }
 

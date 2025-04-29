@@ -32,8 +32,8 @@ class UserServiceImpl : UserService {
         return repository.registerCenterStaff(centerStaffModel)
     }
 
-    override fun registerPharmaciest(pharmaciests: PharmacistsModel): ResponseModel {
-        return ResponseModel(repository.registerPharmacist(pharmaciests), "")
+    override fun registerPharmacist(pharmacists: PharmacistsModel): ResponseModel {
+        return ResponseModel(repository.registerPharmacist(pharmacists), "")
     }
 
     override fun getPharmacists(token: String): ResponseModel {
