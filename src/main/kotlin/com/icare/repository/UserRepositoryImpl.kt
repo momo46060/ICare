@@ -259,7 +259,7 @@ WHEN NOT MATCHED BY TARGET THEN
 
     override fun registerCenterStaff(centerStaff: CenterStaffModel): Short =
         runCatching {
-            val userId = getUid(centerStaff.token) ?: return INVALID_TOKEN
+            getUid(centerStaff.token) ?: return INVALID_TOKEN
 
             val firebaseUserId = createOrUpdateFirebaseUser(
                 centerStaff.email,
