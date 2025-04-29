@@ -1,17 +1,11 @@
 package com.icare.repository
 
-import com.icare.model.CenterStaffModel
-import com.icare.model.DoctorModel
-import com.icare.model.PatientModel
-import com.icare.model.PharmacistsModel
-import com.icare.model.ResponseModel
-import com.icare.model.TokenRequest
-import com.icare.model.Users
+import com.icare.model.*
 import com.icare.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
-import kotlin.Int
+import java.sql.Timestamp
 
 
 @Repository
@@ -223,7 +217,7 @@ class UserRepositoryImpl : UserRepository {
 
         val meargsql = """
               MERGE INTO Users AS target
-USING (VALUES ('${user.userId}', '${user.roleID}', '${user.fName}', '${user.lName}', '${user.email}', '${user.birthDate}', '${user.gender}', '${user.isActive}','${user.phoneNumber}','${user.address}','${user.nationalId}'))
+USING (VALUES ('${user.userId}', '${user.roleID}', '${user.fName}', '${user.lName}', '${user.email}', '${Timestamp(user.birthDate)}', '${user.gender}', '${user.isActive}','${user.phoneNumber}','${user.address}','${user.nationalId}'))
    AS source (
     [UserID], [RoleID], [FirstName], [LastName], [Email], [BirthDate], [Gender], [IsActive], 
     [phone], [address], [national_id]
