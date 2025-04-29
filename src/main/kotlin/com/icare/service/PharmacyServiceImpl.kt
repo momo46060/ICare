@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 class PharmacyServiceImpl : PharmacyService {
     @Autowired
     lateinit var repository: PharmacyRepository
-    override fun addPhamacy(pharmacy: PharmacyModel): ResponseModel {
+    override fun addPharmacy(pharmacy: PharmacyModel): ResponseModel {
         return ResponseModel(repository.addPharmacy(pharmacy),"")
     }
 
@@ -30,18 +30,5 @@ class PharmacyServiceImpl : PharmacyService {
             return ResponseModel(status= FAILED)
         }
 
-    }
-
-    override fun getPharmaciest(token: String): ResponseModel {
-        try {
-            if (getUid(token) == null) {
-                return ResponseModel(status=INVALID_TOKEN)
-            }else{
-                return ResponseModel(status= OK, data = repository.getPharmaciest())
-            }
-        }catch (e:Exception){
-            e.printStackTrace()
-            return ResponseModel(status= FAILED)
-        }
     }
 }

@@ -1,7 +1,6 @@
 package com.icare.repository
 
 
-import com.icare.model.PharmacistsModel
 import com.icare.model.PharmacyModel
 import com.icare.utils.FAILED
 import com.icare.utils.OK
@@ -58,25 +57,6 @@ class PharmacyRepositoryImpl : PharmacyRepository {
                 pharmacyAddress = rs.getString("PharmacyAddress"),
 
                 )
-        }
-    }
-
-    override fun getPharmaciest(): List<PharmacistsModel> {
-        val sql = """
-            SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.phone, P.Pharmacy_ID
-                 FROM Pharmacists P
-                        JOIN Users U
-              ON P.Pharmacy_ID = U.UserID;
-        """.trimIndent()
-        return iCareJdbcTemplate.query(sql) { rs, _ ->
-            PharmacistsModel(
-                token = rs.getString("UserID"),
-                fName = rs.getString("FirstName"),
-                lName = rs.getString("LastName"),
-                email = rs.getString("Email"),
-                phoneNumber = rs.getString("phone"),
-                pharmacyId = rs.getLong("Pharmacy_ID"),
-            )
         }
     }
 }

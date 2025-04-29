@@ -1,13 +1,6 @@
 package com.icare.service
 
-import com.icare.model.CenterStaffModel
-import com.icare.model.ClinicModel
-import com.icare.model.DoctorModel
-import com.icare.model.PatientModel
-import com.icare.model.PharmacistsModel
-import com.icare.model.ResponseModel
-import com.icare.model.TokenRequest
-import com.icare.model.Users
+import com.icare.model.*
 
 interface UserService {
     fun getLoginInfo(request: TokenRequest): ResponseModel
@@ -15,6 +8,6 @@ interface UserService {
     fun registerDoctor(doctor: DoctorModel): ResponseModel
     fun registerCenterStaff(centerStaffModel: CenterStaffModel): ResponseModel
     fun registerPharmaciest(pharmaciests: PharmacistsModel): ResponseModel
-
+    fun getPharmacists(token: String): ResponseModel
 }
 

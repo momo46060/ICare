@@ -19,17 +19,12 @@ class PharmacyController {
     @PostMapping("/addPharmacy")
     fun addPharmacy(@RequestBody pharmacyModel: PharmacyModel): ResponseModel {
 
-        return service.addPhamacy(pharmacyModel)
+        return service.addPharmacy(pharmacyModel)
     }
 
     @PostMapping("/getPharmacy")
     fun getPharmacy(@RequestBody request: TokenRequest): ResponseModel {
         return service.getPharmacy(request.token)
-    }
-
-    @PostMapping("/getPharmaciest")
-    fun getPharmaciest(@RequestBody request: TokenRequest): ResponseModel {
-        return service.getPharmaciest(request.token)
     }
 
 

@@ -2,10 +2,7 @@ package com.icare.service
 
 import com.icare.model.*
 import com.icare.repository.UserRepository
-import com.icare.utils.INVALID_TOKEN
-import com.icare.utils.INVALID_USER
-import com.icare.utils.OK
-import com.icare.utils.getUid
+import com.icare.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -36,8 +33,19 @@ class UserServiceImpl : UserService {
     }
 
     override fun registerPharmaciest(pharmaciests: PharmacistsModel): ResponseModel {
-        return ResponseModel(repository.registerPharmaciest(pharmaciests), "")
+        return ResponseModel(repository.registerPharmacist(pharmaciests), "")
     }
 
-
+    override fun getPharmacists(token: String): ResponseModel {
+        try {
+            if (getUid(token) == null) {
+                return ResponseModel(status=INVALID_TOKEN)
+            }else{
+                return ResponseModel(status= OK, data = repository.getPharmacists())
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            return ResponseModel(status= FAILED)
+        }
+    }
 }
