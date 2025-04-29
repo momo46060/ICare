@@ -26,7 +26,7 @@ class UserController {
     }
 
     @PostMapping("/doctorRegister")
-    fun DoctorRegister(@RequestBody doctor: DoctorModel): ResponseModel {
+    fun doctorRegister(@RequestBody doctor: DoctorModel): ResponseModel {
         return userService.registerDoctor(doctor)
     }
 
