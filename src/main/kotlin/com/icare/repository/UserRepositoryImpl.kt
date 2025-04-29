@@ -301,53 +301,49 @@ WHEN NOT MATCHED BY TARGET THEN
             FAILED
         }
 
-    override fun registerPharmacist(pharmacists: PharmacistsModel): Short {
-        if (getUid(pharmacists.token) == null) {
-            return INVALID_TOKEN
-        } else {
-            val deleteUser = """
-                delete from Users where UserID = '${getUid(pharmacists.token)}';
-            """.trimIndent()
-            val meargsql = """
-                MERGE INTO Pharmacists AS target
-USING (VALUES ('${getUid(pharmacists.token)}', '${pharmacists.pharmacyId}'))
-    AS source (pharmacistid, pharmacy_id)
-ON target.pharmacistid = source.pharmacistid
-WHEN MATCHED THEN
-    UPDATE SET
-        target.pharmacy_id = source.pharmacy_id,
-        
-WHEN NOT MATCHED BY TARGET THEN
-    INSERT (pharmacistid, pharmacy_id)
-    VALUES (source.pharmacistid, source.pharmacy_id);
-            """.trimIndent()
-            try {
-                if (insertUser(
-                        Users(
-                            userId = getUid(pharmacists.token)!!,
-                            fName = pharmacists.fName,
-                            lName = pharmacists.lName,
-                            email = pharmacists.email,
-                            isActive = pharmacists.isActive,
-                            phoneNumber = pharmacists.phoneNumber,
-                            roleID = 4
-                        )
-                    )
-                ) {
-                    iCareJdbcTemplate.update(meargsql)
-                    return OK
-                } else {
-                    iCareJdbcTemplate.update(deleteUser)
-                    return DUPLICATE_USER
-                }
-            } catch (e: Exception) {
-                println(e.stackTrace)
-                println(e.message)
-                iCareJdbcTemplate.update(deleteUser)
-                return FAILED
-            }
+    override fun registerPharmacist(pharmacists: PharmacistsModel): Short =
+        runCatching {
+            val uid = getUid(pharmacists.token) ?: return INVALID_TOKEN
+
+            val firebaseUserId = createOrUpdateFirebaseUser(
+                pharmacists.email,
+                "123456",
+                "${pharmacists.firstName} ${pharmacists.lastName}",
+                pharmacists.pharmacistID
+            ) ?: return FAILED
+
+            val userInserted = insertUser(
+                Users(
+                    userId = firebaseUserId,
+                    fName = pharmacists.firstName,
+                    lName = pharmacists.lastName,
+                    email = pharmacists.email,
+                    isActive = pharmacists.isActive,
+                    phoneNumber = pharmacists.phoneNumber,
+                    roleID = 4
+                )
+            )
+
+            if (!userInserted) return FAILED
+
+            val mergeSql = """
+            MERGE INTO Pharmacists AS target
+            USING (VALUES (?, ?))
+            AS source (PharmacistID, Pharmacy_ID)
+            ON target.PharmacistID = source.PharmacistID
+            WHEN MATCHED THEN
+                UPDATE SET target.Pharmacy_ID = source.Pharmacy_ID
+            WHEN NOT MATCHED BY TARGET THEN
+                INSERT (PharmacistID, Pharmacy_ID)
+                VALUES (source.PharmacistID, source.Pharmacy_ID);
+        """.trimIndent()
+
+            iCareJdbcTemplate.update(mergeSql, firebaseUserId, pharmacists.pharmacyId)
+            OK
+        }.getOrElse { e ->
+            e.printStackTrace()
+            FAILED
         }
-    }
 
     override fun getPharmacists(): List<PharmacistsModel> {
         val sql = """
@@ -361,8 +357,8 @@ WHEN NOT MATCHED BY TARGET THEN
         return iCareJdbcTemplate.query(sql) { rs, _ ->
             PharmacistsModel(
                 pharmacistID = rs.getString("UserID"),
-                fName = rs.getString("FirstName"),
-                lName = rs.getString("LastName"),
+                firstName = rs.getString("FirstName"),
+                lastName = rs.getString("LastName"),
                 email = rs.getString("Email"),
                 phoneNumber = rs.getString("phone"),
                 pharmacyId = rs.getLong("Pharmacy_ID"),
