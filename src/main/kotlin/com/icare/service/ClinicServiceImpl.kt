@@ -121,4 +121,9 @@ class ClinicServiceImpl : ClinicService {
             return ResponseModel(status = FAILED, data = listOf<ConsultationModel>())
         }
     }
+
+    override fun getAdminStatistics(request: TokenRequest): ResponseModel =
+        getUid(request.token)?.let { uid ->
+            ResponseModel(status = OK, data = repository.getAdminStatistics(uid))
+        } ?: ResponseModel(status = INVALID_TOKEN, data = AdminStatistics())
 }
