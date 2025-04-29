@@ -66,4 +66,9 @@ class ClinicController {
     }
 
 
+    @PostMapping("/getAdminStatistics")
+    fun getAdminStatistics(@RequestBody request: TokenRequest): ResponseModel =
+        service.getAdminStatistics(request)
+
+
 }

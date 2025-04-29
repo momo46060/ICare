@@ -12,4 +12,5 @@ interface ClinicRepository {
     fun getConsultationsByPrescriptionStatus(status: Short): List<ConsultationModel>
     fun getConsultationsByLabTestStatus(status: Short): List<ConsultationModel>
     fun getConsultationsByImaginingTestStatus(status: Short): List<ConsultationModel>
+    fun getAdminStatistics(uid: String): AdminStatistics
 }

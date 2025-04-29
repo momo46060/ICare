@@ -18,5 +18,6 @@ interface ClinicService {
     fun getConsultationsByPrescriptionStatus(request: TokenRequest): ResponseModel
     fun getConsultationsByLabTestStatus(request: TokenRequest): ResponseModel
     fun getConsultationsByImaginingTestStatus(request: TokenRequest): ResponseModel
+    fun getAdminStatistics(request: TokenRequest): ResponseModel
 
 }

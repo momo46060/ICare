@@ -122,21 +122,20 @@ class ClinicRepositoryImpl : ClinicRepository {
             where A.DoctorID = '$uid' AND A.StatusID < 3
         """.trimIndent()
 
-        val appointments =
-            iCareJdbcTemplate.query(appointmentsSql) { rs, _ ->
-                Appointment(
-                    appointmentId = rs.getLong("AppointmentID"),
-                    patientId = rs.getString("PatientID"),
-                    doctorId = rs.getString("DoctorID"),
-                    appointmentTime = rs.getTimestamp("AppointmentDate").time,
-                    statusId = rs.getShort("StatusID"),
-                    doctorSpecialty = rs.getString("Specialization"),
-                    patientName = rs.getString("PatientName"),
-                    doctorName = rs.getString("DoctorName"),
-                    doctorImage = getImage(rs.getString("DoctorID")) ?: "",
-                    patientImage = getImage(rs.getString("PatientID")) ?: "",
-                )
-            }
+        val appointments = iCareJdbcTemplate.query(appointmentsSql) { rs, _ ->
+            Appointment(
+                appointmentId = rs.getLong("AppointmentID"),
+                patientId = rs.getString("PatientID"),
+                doctorId = rs.getString("DoctorID"),
+                appointmentTime = rs.getTimestamp("AppointmentDate").time,
+                statusId = rs.getShort("StatusID"),
+                doctorSpecialty = rs.getString("Specialization"),
+                patientName = rs.getString("PatientName"),
+                doctorName = rs.getString("DoctorName"),
+                doctorImage = getImage(rs.getString("DoctorID")) ?: "",
+                patientImage = getImage(rs.getString("PatientID")) ?: "",
+            )
+        }
 
         return DoctorSchedule(
             totalPatients = totalPatients,
@@ -177,33 +176,32 @@ class ClinicRepositoryImpl : ClinicRepository {
             where C.PatientID = '$uid'
         """.trimIndent()
 
-        val consultations =
-            iCareJdbcTemplate.query(consultationsSql) { rs, _ ->
-                ConsultationModel(
-                    consultationId = rs.getLong("consultationId"),
-                    appointment = Appointment(
-                        patientId = rs.getString("PatientID"),
-                        doctorId = rs.getString("DoctorID"),
-                        doctorSpecialty = rs.getString("Specialization"),
-                        patientName = "${rs.getString("PatientName")}",
-                        patientImage = getImage(rs.getString("PatientID")) ?: "",
-                        doctorName = "${rs.getString("DoctorName")}",
-                        doctorImage = getImage(rs.getString("DoctorID")) ?: "",
-                    ),
-                    diagnosis = rs.getString("Diagnosis"),
-                    pharmacyId = rs.getLong("PharmacyID"),
-                    medications = rs.getString("Medications"),
-                    prescriptionsStatus = rs.getShort("PrescriptionStatus"),
-                    labCenterId = rs.getLong("LabCenterID"),
-                    labTest = rs.getString("LabTests"),
-                    labTestStatus = rs.getShort("LabTestStatus"),
-                    imagingCenterId = rs.getLong("ImagingCenterID"),
-                    imagingCenterTest = rs.getString("ImagingCenterTests"),
-                    imagingCenterStatus = rs.getShort("ImagingTestStatus"),
-                    followUpDate = rs.getTimestamp("FollowUpDate").time,
-                    date = rs.getTimestamp("ConDateTime").time,
-                )
-            }
+        val consultations = iCareJdbcTemplate.query(consultationsSql) { rs, _ ->
+            ConsultationModel(
+                consultationId = rs.getLong("consultationId"),
+                appointment = Appointment(
+                    patientId = rs.getString("PatientID"),
+                    doctorId = rs.getString("DoctorID"),
+                    doctorSpecialty = rs.getString("Specialization"),
+                    patientName = "${rs.getString("PatientName")}",
+                    patientImage = getImage(rs.getString("PatientID")) ?: "",
+                    doctorName = "${rs.getString("DoctorName")}",
+                    doctorImage = getImage(rs.getString("DoctorID")) ?: "",
+                ),
+                diagnosis = rs.getString("Diagnosis"),
+                pharmacyId = rs.getLong("PharmacyID"),
+                medications = rs.getString("Medications"),
+                prescriptionsStatus = rs.getShort("PrescriptionStatus"),
+                labCenterId = rs.getLong("LabCenterID"),
+                labTest = rs.getString("LabTests"),
+                labTestStatus = rs.getShort("LabTestStatus"),
+                imagingCenterId = rs.getLong("ImagingCenterID"),
+                imagingCenterTest = rs.getString("ImagingCenterTests"),
+                imagingCenterStatus = rs.getShort("ImagingTestStatus"),
+                followUpDate = rs.getTimestamp("FollowUpDate").time,
+                date = rs.getTimestamp("ConDateTime").time,
+            )
+        }
         return record.copy(consultations = consultations)
     }
 
@@ -239,10 +237,9 @@ class ClinicRepositoryImpl : ClinicRepository {
     override fun consultation(consultation: ConsultationModel): Short {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         val zoneId = ZoneId.systemDefault() // أو حدد المنطقة الزمنية لو عايز ZoneId.of("Africa/Cairo")
-        val formattedDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.date), zoneId)
-            .format(formatter)
-        val followUpDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.followUpDate), zoneId)
-            .format(formatter)
+        val formattedDate = LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.date), zoneId).format(formatter)
+        val followUpDate =
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(consultation.followUpDate), zoneId).format(formatter)
         val sql = """
             MERGE INTO Consultations AS target
             USING (VALUES (
@@ -364,7 +361,7 @@ where c.LabTestStatus = $status;
                     doctorName = "${rs.getString("doctor_first_name")} ${rs.getString("doctor_last_name")}",
                     doctorImage = getImage(rs.getString("DoctorID")) ?: "",
                     patientImage = getImage(rs.getString("PatientID")) ?: "",
-                    ),
+                ),
                 diagnosis = rs.getString("Diagnosis"),
                 pharmacyId = rs.getLong("PharmacyID"),
                 medications = rs.getString("Medications"),
@@ -425,4 +422,59 @@ where c.ImagingTestStatus = $status;
         }
     }
 
+    override fun getAdminStatistics(uid: String): AdminStatistics {
+        val totalUsers = iCareJdbcTemplate.queryForObject("select count(*) from Users") { rs, _ ->
+            rs.getLong(1)
+        } ?: 0
+
+        val doctors = iCareJdbcTemplate.queryForObject("select count(*) from Doctors") { rs, _ ->
+            rs.getLong(1)
+        } ?: 0
+
+        val pharmacies = iCareJdbcTemplate.queryForObject("select count(*) from Pharmacies") { rs, _ ->
+            rs.getLong(1)
+        } ?: 0
+
+        val scanCenters =
+            iCareJdbcTemplate.queryForObject("select count(*) from Lab_Imaging_Centers WHERE CenterType = 2") { rs, _ ->
+                rs.getLong(1)
+            } ?: 0
+
+        val labCenters =
+            iCareJdbcTemplate.queryForObject("select count(*) from Lab_Imaging_Centers WHERE CenterType = 1") { rs, _ ->
+                rs.getLong(1)
+            } ?: 0
+
+        val pending =
+            iCareJdbcTemplate.queryForObject("select count(*) from Appointments where StatusID = 1") { rs, _ ->
+                rs.getLong(1)
+            } ?: 0
+
+        val confirmed =
+            iCareJdbcTemplate.queryForObject("select count(*) from Appointments where StatusID = 2") { rs, _ ->
+                rs.getLong(1)
+            } ?: 0
+
+        val completed =
+            iCareJdbcTemplate.queryForObject("select count(*) from Appointments where StatusID = 3") { rs, _ ->
+                rs.getLong(1)
+            } ?: 0
+
+        val cancelled =
+            iCareJdbcTemplate.queryForObject("select count(*) from Appointments where StatusID = 4") { rs, _ ->
+                rs.getLong(1)
+            } ?: 0
+
+        return AdminStatistics(
+            totalUsers = totalUsers,
+            doctors = doctors,
+            pharmacies = pharmacies,
+            scanCenters = scanCenters,
+            labCenters = labCenters,
+            pending = pending,
+            confirmed = confirmed,
+            completed = completed,
+            cancelled = cancelled
+        )
+    }
 }
