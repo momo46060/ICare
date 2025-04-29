@@ -9,5 +9,6 @@ class PharmacistsModel(
     val isActive:Boolean=true,
     val phoneNumber: String = "",
     val pharmacyId :Long=0,
+    val pharmacyName: String = "",
     val profilePicture: String = "",
 )
