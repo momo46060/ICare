@@ -306,16 +306,16 @@ WHEN NOT MATCHED BY TARGET THEN
         }
     }
 
-    override fun registerPharmaciest(pharmaciests: PharmacistsModel): Short {
-        if (getUid(pharmaciests.token) == null) {
+    override fun registerPharmacist(pharmacists: PharmacistsModel): Short {
+        if (getUid(pharmacists.token) == null) {
             return INVALID_TOKEN
         } else {
             val deleteUser = """
-                delete from Users where UserID = '${getUid(pharmaciests.token)}';
+                delete from Users where UserID = '${getUid(pharmacists.token)}';
             """.trimIndent()
             val meargsql = """
                 MERGE INTO Pharmacists AS target
-USING (VALUES ('${getUid(pharmaciests.token)}', '${pharmaciests.pharmacyId}'))
+USING (VALUES ('${getUid(pharmacists.token)}', '${pharmacists.pharmacyId}'))
     AS source (pharmacistid, pharmacy_id)
 ON target.pharmacistid = source.pharmacistid
 WHEN MATCHED THEN
@@ -330,12 +330,12 @@ WHEN NOT MATCHED BY TARGET THEN
             try {
                 if (insertUser(
                         Users(
-                            userId = getUid(pharmaciests.token)!!,
-                            fName = pharmaciests.fName,
-                            lName = pharmaciests.lName,
-                            email = pharmaciests.email,
-                            isActive = pharmaciests.isActive,
-                            phoneNumber = pharmaciests.phoneNumber,
+                            userId = getUid(pharmacists.token)!!,
+                            fName = pharmacists.fName,
+                            lName = pharmacists.lName,
+                            email = pharmacists.email,
+                            isActive = pharmacists.isActive,
+                            phoneNumber = pharmacists.phoneNumber,
                             roleID = 4
                         )
                     )
@@ -355,5 +355,22 @@ WHEN NOT MATCHED BY TARGET THEN
         }
     }
 
-
+    override fun getPharmacists(): List<PharmacistsModel> {
+        val sql = """
+            SELECT U.UserID, U.FirstName, U.LastName, U.Email, U.phone, P.Pharmacy_ID
+                 FROM Pharmacists P
+                        JOIN Users U
+              ON P.Pharmacy_ID = U.UserID;
+        """.trimIndent()
+        return iCareJdbcTemplate.query(sql) { rs, _ ->
+            PharmacistsModel(
+                token = rs.getString("UserID"),
+                fName = rs.getString("FirstName"),
+                lName = rs.getString("LastName"),
+                email = rs.getString("Email"),
+                phoneNumber = rs.getString("phone"),
+                pharmacyId = rs.getLong("Pharmacy_ID"),
+            )
+        }
+    }
 }
