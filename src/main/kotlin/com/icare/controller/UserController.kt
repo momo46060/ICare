@@ -54,5 +54,10 @@ class UserController {
     fun getCenterStaff(@RequestBody request: TokenRequest): ResponseModel {
         return userService.getCenterStaff(request.token)
     }
+
+    @PostMapping("/clinicStaffRegister")
+    fun clinicStaffRegister(@RequestBody clinicStaffModel: ClinicStaffModel): ResponseModel {
+        return userService.registerClinicStaff(clinicStaffModel)
+    }
 }
 
