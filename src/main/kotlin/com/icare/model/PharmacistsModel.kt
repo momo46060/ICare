@@ -3,8 +3,8 @@ package com.icare.model
 class PharmacistsModel(
     val token: String = "0",
     val pharmacistID :String="",
-    val fName:String="",
-    val lName:String="",
+    val firstName:String="",
+    val lastName:String="",
     val email:String="",
     val isActive:Boolean=true,
     val phoneNumber: String = "",
