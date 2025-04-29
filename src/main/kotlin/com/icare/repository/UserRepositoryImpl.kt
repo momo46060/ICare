@@ -390,8 +390,8 @@ WHEN NOT MATCHED BY TARGET THEN
         return iCareJdbcTemplate.query(sql) { rs, _ ->
             ClinicStaffModel(
                 id = rs.getString("UserID"),
-                fName = rs.getString("FirstName"),
-                lName = rs.getString("LastName"),
+                fname = rs.getString("FirstName"),
+                lname = rs.getString("LastName"),
                 email = rs.getString("Email"),
                 phoneNumber = rs.getString("phone"),
                 clinicId = rs.getLong("Clinic_ID"),
@@ -423,4 +423,56 @@ WHEN NOT MATCHED BY TARGET THEN
             )
         }
     }
+
+    override fun registerClinicStaff(clinicStaff: ClinicStaffModel): Short {
+        return runCatching {
+            getUid(clinicStaff.token)?.let {
+                val userId =
+                    createOrUpdateFirebaseUser(
+                        clinicStaff.email,
+                        "123456",
+                        "${clinicStaff.fname} ${clinicStaff.lname}",
+                        clinicStaff.id
+                    )
+
+                userId?.let { uid ->
+                    insertUser(
+                        Users(
+                            userId = uid,
+                            fName = clinicStaff.fname,
+                            lName = clinicStaff.lname,
+                            email = clinicStaff.email,
+                            isActive = clinicStaff.isActive,
+                            phoneNumber = clinicStaff.phoneNumber,
+                            roleID = 3
+                        )
+                    )
+                }
+
+                val mergeSql = """
+            MERGE INTO dbo.Clinic_Staff AS target
+USING (VALUES (?, ?))
+    AS source (Staff_ID, Clinic_ID)
+ON target.Staff_ID = source.Staff_ID
+WHEN MATCHED THEN
+    UPDATE SET
+        target.Clinic_ID = source.Clinic_ID
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (Staff_ID, Clinic_ID)
+    VALUES (source.Staff_ID, source.Clinic_ID);
+        """.trimIndent()
+
+                iCareJdbcTemplate.update(
+                    mergeSql,
+                    userId,
+                    clinicStaff.clinicId,
+                )
+                OK
+            } ?: INVALID_TOKEN
+        }.getOrElse { e ->
+            e.printStackTrace()
+            FAILED
+        }
+    }
+
 }
