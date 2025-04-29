@@ -257,54 +257,49 @@ WHEN NOT MATCHED BY TARGET THEN
         }
     }
 
-    override fun registerCenterStaff(centerStaff: CenterStaffModel): ResponseModel {
-        if (getUid(centerStaff.token) == null) {
-            return ResponseModel(INVALID_TOKEN, "")
-        } else {
-            val deleteUser = """
-                delete from Users where UserID = '${getUid(centerStaff.token)}';
-            """.trimIndent()
-            val meargsql = """
-                MERGE INTO Center_Staff AS target
-USING (VALUES ('${getUid(centerStaff.token)}', '${centerStaff.labCenterID}',))
-    AS source (Staff_ID, Lab_Center_ID)
-ON target.Staff_ID = source.Staff_ID
-WHEN MATCHED THEN
-    UPDATE SET
-        target.Staff_ID = source.Staff_ID,
-        target.Lab_Center_ID = source.Lab_Center_ID
-        
-WHEN NOT MATCHED BY TARGET THEN
-    INSERT (Staff_ID, Lab_Center_ID)
-    VALUES (source.Staff_ID, source.Lab_Center_ID);
-            """.trimIndent()
-            try {
-                if (insertUser(
-                        Users(
-                            userId = getUid(centerStaff.token)!!,
-                            fName = centerStaff.firstName,
-                            lName = centerStaff.lastName,
-                            email = centerStaff.email,
-                            isActive = centerStaff.isActive,
-                            phoneNumber = centerStaff.phoneNumber,
-                            roleID = 5
-                        )
-                    )
-                ) {
-                    iCareJdbcTemplate.update(meargsql)
-                    return ResponseModel(OK, "")
-                } else {
-                    iCareJdbcTemplate.update(deleteUser)
-                    return ResponseModel(DUPLICATE_USER, "")
-                }
-            } catch (e: Exception) {
-                println(e.stackTrace)
-                println(e.message)
-                iCareJdbcTemplate.update(deleteUser)
-                return ResponseModel(FAILED, "")
-            }
+    override fun registerCenterStaff(centerStaff: CenterStaffModel): Short =
+        runCatching {
+            val userId = getUid(centerStaff.token) ?: return INVALID_TOKEN
+
+            val firebaseUserId = createOrUpdateFirebaseUser(
+                centerStaff.email,
+                "123456",
+                "${centerStaff.firstName} ${centerStaff.lastName}",
+                centerStaff.staffID
+            ) ?: return FAILED
+
+            val userInserted = insertUser(
+                Users(
+                    userId = firebaseUserId,
+                    fName = centerStaff.firstName,
+                    lName = centerStaff.lastName,
+                    email = centerStaff.email,
+                    isActive = centerStaff.isActive,
+                    phoneNumber = centerStaff.phoneNumber,
+                    roleID = 3
+                )
+            )
+
+            if (!userInserted) return FAILED
+
+            val mergeSql = """
+            MERGE INTO dbo.Center_Staff AS target
+            USING (VALUES (?, ?))
+            AS source (Staff_ID, Lab_Center_ID)
+            ON target.Staff_ID = source.Staff_ID
+            WHEN MATCHED THEN
+                UPDATE SET target.Lab_Center_ID = source.Lab_Center_ID
+            WHEN NOT MATCHED BY TARGET THEN
+                INSERT (Staff_ID, Lab_Center_ID)
+                VALUES (source.Staff_ID, source.Lab_Center_ID);
+        """.trimIndent()
+
+            iCareJdbcTemplate.update(mergeSql, firebaseUserId, centerStaff.labCenterID)
+            OK
+        }.getOrElse { e ->
+            e.printStackTrace()
+            FAILED
         }
-    }
 
     override fun registerPharmacist(pharmacists: PharmacistsModel): Short {
         if (getUid(pharmacists.token) == null) {
@@ -320,7 +315,6 @@ USING (VALUES ('${getUid(pharmacists.token)}', '${pharmacists.pharmacyId}'))
 ON target.pharmacistid = source.pharmacistid
 WHEN MATCHED THEN
     UPDATE SET
-        target.pharmacistid = source.pharmacistid,
         target.pharmacy_id = source.pharmacy_id,
         
 WHEN NOT MATCHED BY TARGET THEN
@@ -424,8 +418,8 @@ WHEN NOT MATCHED BY TARGET THEN
         }
     }
 
-    override fun registerClinicStaff(clinicStaff: ClinicStaffModel): Short {
-        return runCatching {
+    override fun registerClinicStaff(clinicStaff: ClinicStaffModel): Short =
+        runCatching {
             getUid(clinicStaff.token)?.let {
                 val userId =
                     createOrUpdateFirebaseUser(
@@ -450,17 +444,17 @@ WHEN NOT MATCHED BY TARGET THEN
                 }
 
                 val mergeSql = """
-            MERGE INTO dbo.Clinic_Staff AS target
+        MERGE INTO dbo.Clinic_Staff AS target
 USING (VALUES (?, ?))
-    AS source (Staff_ID, Clinic_ID)
+AS source (Staff_ID, Clinic_ID)
 ON target.Staff_ID = source.Staff_ID
 WHEN MATCHED THEN
-    UPDATE SET
-        target.Clinic_ID = source.Clinic_ID
+UPDATE SET
+    target.Clinic_ID = source.Clinic_ID
 WHEN NOT MATCHED BY TARGET THEN
-    INSERT (Staff_ID, Clinic_ID)
-    VALUES (source.Staff_ID, source.Clinic_ID);
-        """.trimIndent()
+INSERT (Staff_ID, Clinic_ID)
+VALUES (source.Staff_ID, source.Clinic_ID);
+    """.trimIndent()
 
                 iCareJdbcTemplate.update(
                     mergeSql,
@@ -473,6 +467,4 @@ WHEN NOT MATCHED BY TARGET THEN
             e.printStackTrace()
             FAILED
         }
-    }
-
 }
