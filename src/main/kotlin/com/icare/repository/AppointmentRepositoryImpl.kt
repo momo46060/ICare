@@ -15,20 +15,19 @@ class AppointmentRepositoryImpl : AppointmentsRepository {
 
     override fun insertAppointments(appointment: Appointment): Short {
         val sql = """
-        MERGE INTO Appointments AS target
-        USING (
-            SELECT ? AS PatientID, ? AS DoctorID, ? AS AppointmentDate, ? AS StatusID
-        ) AS source
-        ON target.PatientID = source.PatientID
-           AND target.DoctorID = source.DoctorID
-           AND target.AppointmentDate = source.AppointmentDate
-        WHEN MATCHED THEN
-            UPDATE SET
-                StatusID = source.StatusID
-        WHEN NOT MATCHED BY TARGET THEN
-            INSERT (PatientID, DoctorID, AppointmentDate, StatusID)
-            VALUES (source.PatientID, source.DoctorID, source.AppointmentDate, source.StatusID);
-    """.trimIndent()
+            MERGE INTO Appointments AS target
+            USING (
+                SELECT ? AS AppointmentID, ? AS PatientID, ? AS DoctorID, ? AS AppointmentDate, ? AS StatusID
+            ) AS source
+            ON target.AppointmentID = source.AppointmentID
+            WHEN MATCHED THEN
+                UPDATE SET
+                    AppointmentDate = source.AppointmentDate,
+                    StatusID = source.StatusID
+            WHEN NOT MATCHED BY TARGET THEN
+                INSERT (PatientID, DoctorID, AppointmentDate, StatusID)
+                VALUES (source.PatientID, source.DoctorID, source.AppointmentDate, source.StatusID);
+        """.trimIndent()
 
         if (getUid(appointment.token) == null) {
             return INVALID_TOKEN
@@ -37,6 +36,7 @@ class AppointmentRepositoryImpl : AppointmentsRepository {
                 val appointmentDate = Timestamp(appointment.appointmentTime) // Convert epoch to Timestamp
                 iCareJdbcTemplate.update(
                     sql,
+                    appointment.appointmentId,  // AppointmentID
                     getUid(appointment.token),  // PatientID
                     appointment.doctorId,      // DoctorID
                     appointmentDate,           // AppointmentDate
