@@ -68,7 +68,7 @@ class ClinicRepositoryImpl : ClinicRepository {
 
     override fun getDoctorSchedule(uid: String): DoctorSchedule {
         val infoSql = """
-            SELECT Price, From_Time, To_Time
+            SELECT Price,Rating, From_Time, To_Time
             FROM Doctors
             INNER JOIN Users on UserID = DoctorID
             WHERE DoctorID = '$uid'
@@ -77,6 +77,7 @@ class ClinicRepositoryImpl : ClinicRepository {
             DoctorModel(
                 doctorID = uid,
                 price = rs.getDouble("Price"),
+                rating = rs.getDouble("Rating"),
                 fromTime = rs.getLong("From_Time"),
                 toTime = rs.getLong("To_Time")
             )
@@ -141,6 +142,9 @@ class ClinicRepositoryImpl : ClinicRepository {
             totalPatients = totalPatients,
             confirmed = confirmed,
             price = doctor.price,
+            rating = doctor.rating,
+            fromTime = doctor.fromTime,
+            toTime = doctor.toTime,
             availableSlots = availableSlots,
             appointments = appointments
         )
