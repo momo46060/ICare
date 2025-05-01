@@ -11,7 +11,7 @@ interface ClinicService {
 
     fun addClinic(clinic: ClinicModel): ResponseModel
     fun getClinics(token: String): ResponseModel
-    fun getDoctorSchedule(token: String): ResponseModel
+    fun getDoctorSchedule(token: String, uid: String): ResponseModel
     fun getMedicalRecord(token: String,uid: String): ResponseModel
     fun getDoctors(token: String): ResponseModel
     fun consultation(consultationModel: ConsultationModel): ResponseModel
@@ -19,5 +19,4 @@ interface ClinicService {
     fun getConsultationsByLabTestStatus(request: TokenRequest): ResponseModel
     fun getConsultationsByImaginingTestStatus(request: TokenRequest): ResponseModel
     fun getAdminStatistics(request: TokenRequest): ResponseModel
-
 }
