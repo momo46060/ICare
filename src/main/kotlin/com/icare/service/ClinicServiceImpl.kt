@@ -32,8 +32,8 @@ class ClinicServiceImpl : ClinicService {
         }
     }
 
-    override fun getDoctorSchedule(token: String): ResponseModel = runCatching {
-        getUid(token)?.let { uid ->
+    override fun getDoctorSchedule(token: String,uid:String): ResponseModel = runCatching {
+        getUid(token)?.let {
             ResponseModel(
                 status = OK, data = repository.getDoctorSchedule(uid)
             )
