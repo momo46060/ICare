@@ -15,12 +15,12 @@ import org.springframework.stereotype.Service
 class ImagingCentersServiceImpl: ImagingCentersService {
     @Autowired
     lateinit var repository: ImagingCentersRepositry
+
     override fun insertImagingCenter(imagingCenter: ImagingCentersModel): ResponseModel {
-            return ResponseModel(repository.insertImagingCenter(imagingCenter),"")
+            return ResponseModel(status = repository.insertImagingCenter(imagingCenter),"")
         }
 
     override fun getImagingCenters(token: String): ResponseModel {
-        val list = listOf<ImagingCentersModel>()
         try {
             if(getUid(token) == null) {
                 return ResponseModel(status=INVALID_TOKEN)

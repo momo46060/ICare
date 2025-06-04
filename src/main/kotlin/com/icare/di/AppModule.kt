@@ -33,7 +33,7 @@ class AppModule {
     @Bean
     fun database(): DataSource {
         val dataSourceBuilder = DataSourceBuilder.create()
-        dataSourceBuilder.driverClassName(env.getProperty("spring.datasource.driverClassName")) // Replace if needed based on your driver
+        dataSourceBuilder.driverClassName(env.getProperty("spring.datasource.driverClassName"))
         dataSourceBuilder.url(env.getProperty("spring.datasource.url"))
         dataSourceBuilder.username(env.getProperty("spring.datasource.username"))
         dataSourceBuilder.password(env.getProperty("spring.datasource.password"))
