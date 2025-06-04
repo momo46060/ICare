@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository
 class ImagingCentersRepositoryImpl : ImagingCentersRepositry {
     @Autowired
     lateinit var iCareJdbcTemplate: JdbcTemplate
+
     override fun insertImagingCenter(ImagingCenters: ImagingCentersModel): Short {
 
         val sql = """
