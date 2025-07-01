@@ -247,10 +247,10 @@ WHEN NOT MATCHED BY TARGET THEN
         source.[Gender], source.[IsActive], source.[phone], 
         source.[address], source.[national_id]
     );""".trimIndent()
-        try {
+        runCatching {
             iCareJdbcTemplate.update(meargsql)
             return true
-        } catch (e: Exception) {
+        }.getOrElse { e ->
             println(e.stackTrace)
             println(e.message)
             return false
