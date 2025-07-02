@@ -60,7 +60,7 @@ class UserRepositoryImpl : UserRepository {
         INSERT ([Patient_ID], [ChronicDiseases], [CurrentMedications], [Allergies], [PastSurgeries], [Weight])
         VALUES (source.[Patient_ID], source.[ChronicDiseases], source.[CurrentMedications], source.[Allergies], source.[PastSurgeries], source.[Weight]);
  """.trimIndent()
-            try {
+            runCatching {
                 if (insertUser(
                         Users(
                             getUid(patient.token)!!,
@@ -84,7 +84,7 @@ class UserRepositoryImpl : UserRepository {
                     iCareJdbcTemplate.update(deleteUser)
                     return DUPLICATE_USER
                 }
-            } catch (e: Exception) {
+            }.getOrElse { e ->
                 println(e.stackTrace)
                 println(e.message)
                 iCareJdbcTemplate.update(deleteUser)
