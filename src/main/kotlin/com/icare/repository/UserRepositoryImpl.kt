@@ -148,7 +148,7 @@ class UserRepositoryImpl : UserRepository {
 
     override fun registerDoctor(doctor: DoctorModel): Short {
 
-        return try {
+        return runCatching {
 //            val uid = getUid(doctor.token) ?: return INVALID_TOKEN
             println("**************************")
 //            println(uid)
@@ -207,7 +207,7 @@ class UserRepositoryImpl : UserRepository {
 
             OK
 
-        } catch (e: Exception) {
+        }.getOrElse { e ->
             e.printStackTrace()
             FAILED
         }
