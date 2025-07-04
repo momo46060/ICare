@@ -213,41 +213,44 @@ class UserRepositoryImpl : UserRepository {
         }
     }
 
-    override fun insertUser(user: Users): Boolean {
-
-        val meargsql = """
-              MERGE INTO Users AS target
-USING (VALUES ('${user.userId}', '${user.roleID}', '${user.fName}', '${user.lName}', '${user.email}', '${Timestamp(user.birthDate)}', '${user.gender}', '${user.isActive}','${user.phoneNumber}','${user.address}','${user.nationalId}'))
-   AS source (
-    [UserID], [RoleID], [FirstName], [LastName], [Email], [BirthDate], [Gender], [IsActive], 
-    [phone], [address], [national_id]
-)
-ON target.[UserID] = source.[UserID]
-WHEN MATCHED THEN
-    UPDATE SET
-        target.[RoleID] = source.[RoleID],
-        target.[FirstName] = source.[FirstName],
-        target.[LastName] = source.[LastName],
-        target.[Email] = source.[Email],
-        target.[BirthDate] = source.[BirthDate],
-        target.[Gender] = source.[Gender],
-        target.[IsActive] = source.[IsActive],
-        target.[phone] = source.[phone],
-        target.[address] = source.[address],
-        target.[national_id] = source.[national_id]  -- <-- Removed trailing comma
-WHEN NOT MATCHED BY TARGET THEN
-    INSERT (
-        [UserID], [RoleID], [FirstName], [LastName], [Email], 
-        [BirthDate], [Gender], [IsActive], [phone], 
-        [address], [national_id]
-    )
-    VALUES (
-        source.[UserID], source.[RoleID], source.[FirstName], 
-        source.[LastName], source.[Email], source.[BirthDate], 
-        source.[Gender], source.[IsActive], source.[phone], 
-        source.[address], source.[national_id]
-    );""".trimIndent()
+    override fun insertUser(user: Users): Boolean =
         runCatching {
+            val meargsql = """
+              MERGE INTO Users AS target
+                USING (VALUES ('${user.userId}', '${user.roleID}', '${user.fName}', '${user.lName}', '${user.email}', '${
+                Timestamp(
+                    user.birthDate
+                )
+            }', '${user.gender}', '${user.isActive}','${user.phoneNumber}','${user.address}','${user.nationalId}'))
+                   AS source (
+                    [UserID], [RoleID], [FirstName], [LastName], [Email], [BirthDate], [Gender], [IsActive], 
+                    [phone], [address], [national_id]
+                )
+                ON target.[UserID] = source.[UserID]
+                WHEN MATCHED THEN
+                    UPDATE SET
+                        target.[RoleID] = source.[RoleID],
+                        target.[FirstName] = source.[FirstName],
+                        target.[LastName] = source.[LastName],
+                        target.[Email] = source.[Email],
+                        target.[BirthDate] = source.[BirthDate],
+                        target.[Gender] = source.[Gender],
+                        target.[IsActive] = source.[IsActive],
+                        target.[phone] = source.[phone],
+                        target.[address] = source.[address],
+                        target.[national_id] = source.[national_id]  -- <-- Removed trailing comma
+                WHEN NOT MATCHED BY TARGET THEN
+                    INSERT (
+                        [UserID], [RoleID], [FirstName], [LastName], [Email], 
+                        [BirthDate], [Gender], [IsActive], [phone], 
+                        [address], [national_id]
+                    )
+                    VALUES (
+                        source.[UserID], source.[RoleID], source.[FirstName], 
+                        source.[LastName], source.[Email], source.[BirthDate], 
+                        source.[Gender], source.[IsActive], source.[phone], 
+                        source.[address], source.[national_id]
+                    );""".trimIndent()
             iCareJdbcTemplate.update(meargsql)
             return true
         }.getOrElse { e ->
@@ -255,7 +258,6 @@ WHEN NOT MATCHED BY TARGET THEN
             println(e.message)
             return false
         }
-    }
 
     override fun registerCenterStaff(centerStaff: CenterStaffModel): Short =
         runCatching {
