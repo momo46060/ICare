@@ -33,7 +33,7 @@ class UserRepositoryImpl : UserRepository {
                     nationalId = rs.getString("national_id"),
                 )
             }
-        }.getOrNull()
+        }.getOrElse { Users() }
     }
 
     override fun registerPatient(patient: PatientModel): Short {
