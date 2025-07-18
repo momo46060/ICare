@@ -16,8 +16,7 @@ class UserController {
     @Autowired
     lateinit var userService: UserService
 
-
-    @PostMapping("/loginInfo")
+    @PostMapping("/clinicStaffRegister")
     fun clinicStaffRegister(@RequestBody clinicStaffModel: ClinicStaffModel): ResponseModel {
         return userService.registerClinicStaff(clinicStaffModel)
     }
@@ -57,7 +56,7 @@ class UserController {
         return userService.getCenterStaff(request.token)
     }
 
-    @PostMapping("/clinicStaffRegister")
+    @PostMapping("/loginInfo")
     fun getLoginInfo(@RequestBody request: TokenRequest): ResponseModel =
         userService.getLoginInfo(request)
 
