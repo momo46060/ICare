@@ -149,16 +149,13 @@ class UserRepositoryImpl : UserRepository {
     override fun registerDoctor(doctor: DoctorModel): Short {
 
         return runCatching {
-//            val uid = getUid(doctor.token) ?: return INVALID_TOKEN
-            println("**************************")
-//            println(uid)
-            println("**************************")  // Step 1: إنشاء user جديد
-//            val userId = createUser(doctor.email, "123456", "${doctor.fname} ${doctor.lname}",uid =doctor.doctorID)
             val userId =
-                createOrUpdateFirebaseUser(doctor.email, "123456", "${doctor.fname} ${doctor.lname}", doctor.doctorID)
-
-            // Step 2: إدراج بيانات المستخدم في جدول Users
-            println("**************************")
+                createOrUpdateFirebaseUser(
+                    email = doctor.email,
+                    password = "P@ssw0rd",
+                    displayName = "${doctor.fname} ${doctor.lname}",
+                    uid = doctor.doctorID
+                )
             println(userId)
             if (userId != null) {
                 insertUser(
@@ -264,10 +261,10 @@ class UserRepositoryImpl : UserRepository {
             getUid(centerStaff.token) ?: return INVALID_TOKEN
 
             val firebaseUserId = createOrUpdateFirebaseUser(
-                centerStaff.email,
-                "123456",
-                "${centerStaff.firstName} ${centerStaff.lastName}",
-                centerStaff.staffID
+                email = centerStaff.email,
+                password = "P@ssw0rd",
+                displayName = "${centerStaff.firstName} ${centerStaff.lastName}",
+                uid = centerStaff.staffID
             ) ?: return FAILED
 
             val userInserted = insertUser(
@@ -308,10 +305,10 @@ class UserRepositoryImpl : UserRepository {
             val uid = getUid(pharmacists.token) ?: return INVALID_TOKEN
 
             val firebaseUserId = createOrUpdateFirebaseUser(
-                pharmacists.email,
-                "123456",
-                "${pharmacists.firstName} ${pharmacists.lastName}",
-                pharmacists.pharmacistID
+                email = pharmacists.email,
+                password = "P@ssw0rd",
+                displayName = "${pharmacists.firstName} ${pharmacists.lastName}",
+                uid = pharmacists.pharmacistID
             ) ?: return FAILED
 
             val userInserted = insertUser(
@@ -421,10 +418,10 @@ class UserRepositoryImpl : UserRepository {
             getUid(clinicStaff.token)?.let {
                 val userId =
                     createOrUpdateFirebaseUser(
-                        clinicStaff.email,
-                        "123456",
-                        "${clinicStaff.fname} ${clinicStaff.lname}",
-                        clinicStaff.id
+                        email = clinicStaff.email,
+                        password = "P@ssw0rd",
+                        displayName = "${clinicStaff.fname} ${clinicStaff.lname}",
+                        uid = clinicStaff.id
                     )
 
                 userId?.let { uid ->
