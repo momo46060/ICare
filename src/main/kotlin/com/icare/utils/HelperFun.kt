@@ -43,7 +43,7 @@ fun createOrUpdateFirebaseUser(email: String, password: String, displayName: Str
     val auth = FirebaseAuth.getInstance()
 
     return try {
-        if (uid.isEmpty()) throw EmptyUIdException("Doctor ID is empty")
+        if (uid.isEmpty()) throw EmptyUIdException("User Id is empty")
         val existingUser = auth.getUser(uid)
 
         val updateRequest = UserRecord.UpdateRequest(existingUser.uid)
