@@ -11,7 +11,6 @@ import org.springframework.core.env.Environment
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.util.ResourceUtils
 import java.io.FileInputStream
-import java.io.IOException
 import javax.sql.DataSource
 
 
@@ -23,7 +22,7 @@ class AppModule {
 
     @Bean
     fun fireBaseInitializing(): FirebaseApp {
-        val serviceAccount = FileInputStream(ResourceUtils.getFile("servicekey.json").path)
+        val serviceAccount = FileInputStream(ResourceUtils.getFile("serviceKey.json").path)
         val options = FirebaseOptions.Builder()
             .setCredentials(GoogleCredentials.fromStream(serviceAccount))
             .build()
